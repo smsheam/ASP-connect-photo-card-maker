@@ -1,8 +1,11 @@
 import { CardState, PresetCard } from '../types/card';
 import { getBengaliDate } from '../utils/dateUtils';
 
+// New high quality ASP student conference sample photo
+export const DEFAULT_SAMPLE_PHOTO = '/assets/asp_sample_photo.jpg';
+
 export const DEFAULT_CARD_STATE: CardState = {
-  photoUrl: '/assets/aistudio/image_6c8a5620.png',
+  photoUrl: DEFAULT_SAMPLE_PHOTO,
   imageZoom: 1.0,
   imagePanX: 0,
   imagePanY: 0,
@@ -48,10 +51,10 @@ export const DEFAULT_CARD_STATE: CardState = {
 export const SAMPLE_PRESETS: PresetCard[] = [
   {
     id: 'burichang-regional',
-    title: 'বুড়িচং রিজিউন (শিক্ষা ও উন্নয়ন)',
+    title: 'বুড়িচং রিজিউন (শিক্ষা ও ক্যারিয়ার)',
     category: 'বুড়িচং',
     cardState: {
-      photoUrl: '/assets/aistudio/image_6c8a5620.png',
+      photoUrl: DEFAULT_SAMPLE_PHOTO,
       category: 'বুড়িচং',
       categoryColor: '#DC2626',
       headline: 'বুড়িচংয়ে তরুণদের ক্যারিয়ার গাইডেন্স ও মেধা বিকাশ সেমিনার অনুষ্ঠিত',
@@ -67,10 +70,10 @@ export const SAMPLE_PRESETS: PresetCard[] = [
   },
   {
     id: 'brahmanpara-regional',
-    title: 'ব্রাহ্মণপাড়া রিজিউন (সামাজিক উদ্যোগ)',
+    title: 'ব্রাহ্মণপাড়া রিজিউন (শিক্ষাবৃত্তি)',
     category: 'ব্রাহ্মণপাড়া',
     cardState: {
-      photoUrl: '/assets/aistudio/image_6c8a5620.png',
+      photoUrl: DEFAULT_SAMPLE_PHOTO,
       category: 'ব্রাহ্মণপাড়া',
       categoryColor: '#059669',
       headline: 'ব্রাহ্মণপাড়ায় দরিদ্র ও মেধাবী শিক্ষার্থীদের মাঝে শিক্ষাবৃত্তি বিতরণ',
@@ -85,35 +88,15 @@ export const SAMPLE_PRESETS: PresetCard[] = [
     },
   },
   {
-    id: 'ref-flight-cancellation',
-    title: 'রেফারেন্স স্টাইল (ফ্লাইট সংকট)',
-    category: 'বুড়িচং-ব্রাহ্মণপাড়া',
-    cardState: {
-      photoUrl: '/assets/aistudio/image_6c8a5620.png',
-      category: 'বুড়িচং',
-      categoryColor: '#DC2626',
-      headline: 'Over 19,000 stranded after 126 flights to Saudi Arabia cancelled',
-      highlightPhrase: 'Over 19,000 stranded',
-      highlightColor: '#FACC15',
-      description: 'Massive disruption hits thousands of migrant workers stranded at the airport after sudden cancellations.',
-      footerCallout: 'বিস্তারিত ক্যাপশনে',
-      footerUrl: 'To learn More about ASP, Visit ASP2016.ORG',
-      aspectRatio: '3:4',
-      contentHeightRatio: 0.40,
-      headlineFontSize: 46,
-      fontFamily: 'Merriweather',
-    },
-  },
-  {
     id: 'asp-central-news',
-    title: 'ASP কেন্দ্রীয় সংবাদ',
+    title: 'ASP কেন্দ্রীয় সম্মেলন',
     category: 'বুড়িচং-ব্রাহ্মণপাড়া',
     cardState: {
-      photoUrl: '/assets/aistudio/image_6c8a5620.png',
-      category: 'ব্রাহ্মণপাড়া',
+      photoUrl: DEFAULT_SAMPLE_PHOTO,
+      category: 'বুড়িচং-ব্রাহ্মণপাড়া',
       categoryColor: '#2563EB',
-      headline: 'অ্যাসোসিয়েশন স্টুডেন্টস প্রগ্রেস (ASP)-এর ১০ বছর পূর্তি ও পুনর্মিলনী উৎসব',
-      highlightPhrase: '১০ বছর পূর্তি',
+      headline: 'অ্যাসোসিয়েশন স্টুডেন্টস প্রগ্রেস (ASP)-এর বার্ষিক মেধা সম্মেলন ও পুনর্মিলনী',
+      highlightPhrase: 'বার্ষিক মেধা সম্মেলন',
       highlightColor: '#38BDF8',
       description: 'বুড়িচং ও ব্রাহ্মণপাড়া অঞ্চলের প্রাক্তন ও বর্তমান শিক্ষার্থীদের অংশগ্রহণে আয়োজিত হতে যাচ্ছে মহা সম্মেলন।',
       footerCallout: 'বিস্তারিত ক্যাপশনে',

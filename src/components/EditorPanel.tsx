@@ -407,11 +407,11 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({ cardState, onChange })
 
               <button
                 type="button"
-                onClick={() => onChange({ photoUrl: '/assets/aistudio/image_6c8a5620.png', imageZoom: 1, imagePanX: 0, imagePanY: 0 })}
+                onClick={() => onChange({ photoUrl: '/assets/asp_sample_photo.jpg', imageZoom: 1, imagePanX: 0, imagePanY: 0 })}
                 className="flex items-center justify-center gap-2 p-3 bg-slate-950 hover:bg-slate-800 border border-slate-800 hover:border-slate-700 rounded-lg text-xs font-medium text-slate-300 transition-colors"
               >
                 <ImageIcon className="w-4 h-4 text-amber-400" />
-                <span>রেফারেন্স ফটো ব্যবহার</span>
+                <span>ASP সেমিনার ফটো ব্যবহার</span>
               </button>
             </div>
           </div>

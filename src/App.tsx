@@ -37,7 +37,7 @@ export default function App() {
   };
 
   const handleApplyReferenceStyle = () => {
-    handleSelectPreset('ref-flight-cancellation');
+    handleSelectPreset('burichang-regional');
   };
 
   return (
@@ -100,8 +100,12 @@ export default function App() {
                     বুড়িচং · ব্রাহ্মণপাড়া
                   </span>
                 </h1>
-                <p className="text-xs text-slate-400 mt-1">
-                  Powered by <span className="text-slate-300 font-semibold">Association Students' Progress (ASP)</span>
+                <p className="text-xs text-slate-400 mt-1 flex items-center gap-2 flex-wrap">
+                  <span>Powered by <strong className="text-slate-300">Association Students' Progress (ASP)</strong></span>
+                  <span className="text-slate-600">·</span>
+                  <span className="text-rose-400 font-semibold bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20 text-[11px]">
+                    Developed by SMSHEAM
+                  </span>
                 </p>
               </div>
             </div>
@@ -138,6 +142,8 @@ export default function App() {
             <span>ASP কানেক্ট © {new Date().getFullYear()}</span>
             <span className="mx-2">·</span>
             <span className="text-slate-400">Powered by Association Students' Progress (ASP)</span>
+            <span className="mx-2">·</span>
+            <span className="text-rose-400 font-semibold">Developed by SMSHEAM</span>
           </div>
           <div className="flex items-center gap-4 text-[11px] text-slate-400">
             <span>৩*৪ সাইজ (৪০% সংবাদ · ৬০% ছবি)</span>

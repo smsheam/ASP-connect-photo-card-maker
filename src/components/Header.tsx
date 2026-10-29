@@ -21,12 +21,15 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="sticky top-0 z-40 bg-slate-950/90 backdrop-blur-md border-b border-slate-800/80 px-4 lg:px-8 py-3 transition-all">
       <div className="max-w-7xl mx-auto flex items-center justify-between gap-4 md:gap-8">
         
-        {/* Zone 1: Brand Wordmark + Powered by ASP */}
+        {/* Zone 1: Brand Wordmark + Powered by ASP + Developed by SMSHEAM */}
         <div className="flex items-center gap-3 shrink-0">
           <LogoVector variant="white-red" size={0.65} />
           <div className="hidden sm:flex flex-col text-left">
             <span className="text-[10px] text-slate-400 font-medium">
               Powered by Association Students' Progress (ASP)
+            </span>
+            <span className="text-[10px] text-rose-400 font-semibold tracking-wide">
+              Developed by SMSHEAM
             </span>
           </div>
         </div>
@@ -47,10 +50,10 @@ export const Header: React.FC<HeaderProps> = ({
             📍 ব্রাহ্মণপাড়া
           </button>
           <button
-            onClick={() => onSelectPreset('ref-flight-cancellation')}
+            onClick={() => onSelectPreset('asp-central-news')}
             className="px-2.5 py-1 rounded bg-slate-900 hover:bg-slate-800 text-slate-300 hover:text-white border border-slate-800 transition-colors whitespace-nowrap shrink-0"
           >
-            রেফারেন্স স্টাইল
+            ASP কেন্দ্রীয়
           </button>
         </div>
 
