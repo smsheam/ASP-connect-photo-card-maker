@@ -10,7 +10,7 @@ import { Header } from './components/Header';
 import { EditorPanel } from './components/EditorPanel';
 import { PreviewPanel } from './components/PreviewPanel';
 import { ReferenceModal } from './components/ReferenceModal';
-import { Edit3, Eye, Download, ShieldCheck } from 'lucide-react';
+import { Edit3, Eye } from 'lucide-react';
 
 export default function App() {
   const [cardState, setCardState] = useState<CardState>(DEFAULT_CARD_STATE);
@@ -41,7 +41,7 @@ export default function App() {
   };
 
   return (
-    <div className="min-h-screen bg-slate-950 text-slate-100 flex flex-col font-sans selection:bg-rose-500 selection:text-white">
+    <div className="min-h-screen flex flex-col font-sans bg-slate-950 text-slate-100 selection:bg-rose-500 selection:text-white">
       {/* Header */}
       <Header
         onExport={() => {
@@ -68,7 +68,7 @@ export default function App() {
             className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-semibold transition-all ${
               mobileTab === 'editor'
                 ? 'bg-rose-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-slate-200'
+                : 'text-slate-400'
             }`}
           >
             <Edit3 className="w-3.5 h-3.5" />
@@ -79,7 +79,7 @@ export default function App() {
             className={`flex-1 flex items-center justify-center gap-2 py-2 rounded-lg text-xs font-semibold transition-all ${
               mobileTab === 'preview'
                 ? 'bg-rose-600 text-white shadow-sm'
-                : 'text-slate-400 hover:text-slate-200'
+                : 'text-slate-400'
             }`}
           >
             <Eye className="w-3.5 h-3.5" />
@@ -90,38 +90,38 @@ export default function App() {
         {/* Dual Column Layout */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-6 lg:gap-8 items-start">
           
-          {/* Left Column: Editor Controls */}
-          <div className={`lg:col-span-6 space-y-4 ${mobileTab === 'preview' ? 'hidden lg:block' : 'block'}`}>
-            <div className="flex items-center justify-between pb-1">
-              <div>
-                <h1 className="text-base font-bold text-slate-100 flex items-center gap-2 flex-wrap">
-                  <span>ASP কানেক্ট ফটো কার্ড ক্রিয়েটর</span>
-                  <span className="text-xs px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 font-normal">
-                    বুড়িচং · ব্রাহ্মণপাড়া
-                  </span>
-                </h1>
-                <p className="text-xs text-slate-400 mt-1 flex items-center gap-2 flex-wrap">
-                  <span>Powered by <strong className="text-slate-300">Association Students' Progress (ASP)</strong></span>
-                  <span className="text-slate-600">·</span>
-                  <span className="text-rose-400 font-semibold bg-rose-500/10 px-2 py-0.5 rounded border border-rose-500/20 text-[11px]">
-                    Developed by SMSHEAM
-                  </span>
-                </p>
-              </div>
+          {/* Left Column: Minimal Editor Controls */}
+          <div className={`lg:col-span-6 space-y-3 ${mobileTab === 'preview' ? 'hidden lg:block' : 'block'}`}>
+            <div className="pb-1">
+              <h1 className="text-base font-bold flex items-center gap-2 flex-wrap">
+                <span>ASP কানেক্ট ফটো কার্ড ক্রিয়েটর</span>
+                <span className="text-xs px-2 py-0.5 rounded-full bg-rose-500/10 text-rose-400 border border-rose-500/20 font-normal">
+                  ১:১ স্কয়ার
+                </span>
+              </h1>
+              <p className="text-xs text-slate-400 mt-1 flex items-center gap-2 flex-wrap">
+                <span>Powered by <strong className="text-slate-200">Association for Students' Progress - ASP</strong></span>
+                <span>·</span>
+                <span className="text-rose-400 font-semibold bg-rose-500/10 px-2 py-0.5 rounded text-[11px]">
+                  Developed by SMSHEAM
+                </span>
+              </p>
             </div>
 
             <EditorPanel
               cardState={cardState}
               onChange={handleCardStateChange}
+              isDarkUI={true}
             />
           </div>
 
           {/* Right Column: Live Preview & Export Panel */}
-          <div className={`lg:col-span-6 lg:sticky lg:top-24 space-y-4 ${mobileTab === 'editor' ? 'hidden lg:block' : 'block'}`}>
+          <div className={`lg:col-span-6 lg:sticky lg:top-24 space-y-3 ${mobileTab === 'editor' ? 'hidden lg:block' : 'block'}`}>
             <PreviewPanel
               cardState={cardState}
               isExporting={isExporting}
               setIsExporting={setIsExporting}
+              isDarkUI={true}
             />
           </div>
 
@@ -141,16 +141,16 @@ export default function App() {
           <div>
             <span>ASP কানেক্ট © {new Date().getFullYear()}</span>
             <span className="mx-2">·</span>
-            <span className="text-slate-400">Powered by Association Students' Progress (ASP)</span>
+            <span className="text-slate-400 font-medium">Association for Students' Progress - ASP</span>
             <span className="mx-2">·</span>
             <span className="text-rose-400 font-semibold">Developed by SMSHEAM</span>
           </div>
-          <div className="flex items-center gap-4 text-[11px] text-slate-400">
-            <span>৩*৪ সাইজ (৪০% সংবাদ · ৬০% ছবি)</span>
+          <div className="flex items-center gap-3 text-[11px] text-slate-400">
+            <span>১:১ স্কয়ার ডিফল্ট</span>
             <span>·</span>
-            <span>বুড়িচং ও ব্রাহ্মণপাড়া রিজিউন</span>
+            <span>বুড়িচং · ব্রাহ্মণপাড়া · কুমিল্লা · বাংলাদেশ</span>
             <span>·</span>
-            <span className="text-emerald-400">১০০% অফলাইনে প্রস্তুত</span>
+            <span>VISIT ASP2016.ORG</span>
           </div>
         </div>
       </footer>

@@ -8,20 +8,32 @@ export interface Dimension {
 
 export function getDimensionsForRatio(ratio: AspectRatio): Dimension {
   switch (ratio) {
+    case '1:1':
+      return { width: 1080, height: 1080 }; // 1:1 Square (Primary Default)
     case '3:4':
-      return { width: 1080, height: 1440 }; // 3:4 portrait (Primary Default)
+      return { width: 1080, height: 1440 }; // 3:4 portrait
     case '4:3':
       return { width: 1200, height: 900 };
-    case '1:1':
-      return { width: 1080, height: 1080 };
     case '16:9':
       return { width: 1280, height: 720 };
     default:
-      return { width: 1080, height: 1440 };
+      return { width: 1080, height: 1080 };
   }
 }
 
-// Fallback robust Bengali font stack for 100% offline support
+export function isLightBackground(hex: string): boolean {
+  if (!hex) return false;
+  const clean = hex.replace('#', '');
+  if (clean.length === 6) {
+    const r = parseInt(clean.substring(0, 2), 16);
+    const g = parseInt(clean.substring(2, 4), 16);
+    const b = parseInt(clean.substring(4, 6), 16);
+    const brightness = (r * 299 + g * 587 + b * 114) / 1000;
+    return brightness > 180;
+  }
+  return false;
+}
+
 const BENGALI_FONT_STACK = "'Hind Siliguri', 'Noto Sans Bengali', 'SolaimanLipi', 'Kalpurush', 'Siyam Rupali', 'Vrinda', 'Bangla Sangam MN', 'Segoe UI', -apple-system, sans-serif";
 const LATIN_FONT_STACK = "'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
 
@@ -147,7 +159,7 @@ function wrapTextWithHighlight(
 }
 
 /**
- * Main render function that draws the 3:4 photo card with adjustable content space (default 40%)
+ * Main render function supporting 1:1 default, white theme, and dark theme
  */
 export async function renderCardToCanvas(
   canvas: HTMLCanvasElement,
@@ -160,8 +172,11 @@ export async function renderCardToCanvas(
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
-  // 1. Draw solid background
-  ctx.fillStyle = state.themeBackground || '#0B132B';
+  const isLight = isLightBackground(state.themeBackground);
+  const bgColor = state.themeBackground || (isLight ? '#FFFFFF' : '#0B132B');
+
+  // 1. Fill background
+  ctx.fillStyle = bgColor;
   ctx.fillRect(0, 0, width, height);
 
   // Content height allocation: default 40% (0.40) or adjustable
@@ -169,13 +184,12 @@ export async function renderCardToCanvas(
   const contentHeight = Math.round(height * contentRatio);
   const photoHeight = height - contentHeight;
 
-  // 2. Draw user photo (occupies the top 60% or 1 - contentRatio)
+  // 2. Draw user photo
   if (state.photoUrl) {
     try {
       const img = await loadImage(state.photoUrl);
       ctx.save();
       
-      // Clip to photo region
       ctx.beginPath();
       ctx.rect(0, 0, width, photoHeight);
       ctx.clip();
@@ -204,14 +218,21 @@ export async function renderCardToCanvas(
       ctx.drawImage(img, drawX, drawY, drawW, drawH);
       ctx.restore();
 
-      // Seamless bottom gradient scrim at boundary
+      // Seamless bottom gradient scrim at boundary matching the card background
       ctx.save();
-      const scrimHeight = Math.min(220, photoHeight * 0.4);
+      const scrimHeight = Math.min(180, photoHeight * 0.35);
       const scrimY = photoHeight - scrimHeight;
       const grad = ctx.createLinearGradient(0, scrimY, 0, photoHeight);
-      grad.addColorStop(0, 'rgba(11, 19, 43, 0)');
-      grad.addColorStop(0.7, 'rgba(11, 19, 43, 0.8)');
-      grad.addColorStop(1, state.themeBackground || '#0B132B');
+      
+      if (isLight) {
+        grad.addColorStop(0, 'rgba(255, 255, 255, 0)');
+        grad.addColorStop(0.7, 'rgba(255, 255, 255, 0.85)');
+        grad.addColorStop(1, bgColor);
+      } else {
+        grad.addColorStop(0, 'rgba(11, 19, 43, 0)');
+        grad.addColorStop(0.7, 'rgba(11, 19, 43, 0.85)');
+        grad.addColorStop(1, bgColor);
+      }
       ctx.fillStyle = grad;
       ctx.fillRect(0, scrimY, width, scrimHeight + 2);
       ctx.restore();
@@ -222,32 +243,32 @@ export async function renderCardToCanvas(
       }
     } catch (e) {
       console.warn('Could not load card photo:', e);
-      const fallbackGrad = ctx.createLinearGradient(0, 0, 0, photoHeight);
-      fallbackGrad.addColorStop(0, '#1E293B');
-      fallbackGrad.addColorStop(1, '#0F172A');
-      ctx.fillStyle = fallbackGrad;
+      ctx.fillStyle = isLight ? '#F1F5F9' : '#1E293B';
       ctx.fillRect(0, 0, width, photoHeight);
-      ctx.fillStyle = '#94A3B8';
+      ctx.fillStyle = isLight ? '#64748B' : '#94A3B8';
       ctx.font = `600 24px ${BENGALI_FONT_STACK}`;
       ctx.textAlign = 'center';
-      ctx.fillText('ছবি যুক্ত করুন (Upload Photo)', width / 2, photoHeight / 2);
+      ctx.fillText('ছবি নির্বাচন করুন (Upload Photo)', width / 2, photoHeight / 2);
     }
   }
 
   // 3. Top dark scrim for Logo & Date Stamp contrast
   ctx.save();
-  const topGrad = ctx.createLinearGradient(0, 0, 0, 160);
+  const topGrad = ctx.createLinearGradient(0, 0, 0, 150);
   topGrad.addColorStop(0, 'rgba(0, 0, 0, 0.8)');
   topGrad.addColorStop(0.65, 'rgba(0, 0, 0, 0.35)');
   topGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
   ctx.fillStyle = topGrad;
-  ctx.fillRect(0, 0, width, 160);
+  ctx.fillRect(0, 0, width, 150);
   ctx.restore();
 
   // 4. Logo in Top-Left Corner
   const logoScale = (state.logoSize / 100) * (width / 1080);
-  const logoMarginX = 54;
-  const logoMarginY = 72;
+  const logoMarginX = 46;
+  const logoMarginY = 66;
+
+  // In top photo area with dark top scrim, white-red logo looks crisp
+  const effectiveLogoVariant = state.logoVariant || 'white-red';
 
   if (state.logoSource === 'uploaded-asset' || state.logoSource === 'custom-upload') {
     const logoSrc = state.logoSource === 'uploaded-asset' 
@@ -262,46 +283,46 @@ export async function renderCardToCanvas(
         ctx.shadowBlur = 10;
         
         const lAspect = logoImg.naturalWidth / logoImg.naturalHeight;
-        const targetH = 50 * logoScale;
+        const targetH = 46 * logoScale;
         const targetW = targetH * lAspect;
 
-        ctx.drawImage(logoImg, logoMarginX, logoMarginY - 38, targetW, targetH);
+        ctx.drawImage(logoImg, logoMarginX, logoMarginY - 34, targetW, targetH);
         ctx.restore();
       } catch {
-        drawCanvasLogo(ctx, logoMarginX, logoMarginY, logoScale, state.logoVariant);
+        drawCanvasLogo(ctx, logoMarginX, logoMarginY, logoScale, effectiveLogoVariant);
       }
     } else {
-      drawCanvasLogo(ctx, logoMarginX, logoMarginY, logoScale, state.logoVariant);
+      drawCanvasLogo(ctx, logoMarginX, logoMarginY, logoScale, effectiveLogoVariant);
     }
   } else {
-    drawCanvasLogo(ctx, logoMarginX, logoMarginY, logoScale, state.logoVariant);
+    drawCanvasLogo(ctx, logoMarginX, logoMarginY, logoScale, effectiveLogoVariant);
   }
 
-  // 5. Powered by Association Students' Progress (ASP)
+  // 5. Powered by Association for Students' Progress - ASP (Requirement 1)
   if (state.showPoweredBy) {
     ctx.save();
-    const poweredFontSize = Math.round(13 * (width / 1080));
+    const poweredFontSize = Math.round(12 * (width / 1080));
     ctx.font = `600 ${poweredFontSize}px ${LATIN_FONT_STACK}`;
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.8)';
+    ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
     ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
     ctx.shadowBlur = 6;
-    ctx.fillText("Powered by Association Students' Progress (ASP)", logoMarginX, logoMarginY + 26);
+    ctx.fillText("Powered by Association for Students' Progress - ASP", logoMarginX, logoMarginY + 24);
     ctx.restore();
   }
 
   // 6. Date Stamp in Top-Right Corner
   if (state.showDate && state.dateText) {
     ctx.save();
-    const dateFontSize = Math.round(18 * (width / 1080));
+    const dateFontSize = Math.round(17 * (width / 1080));
     ctx.font = `700 ${dateFontSize}px ${BENGALI_FONT_STACK}`;
     
     const textMetrics = ctx.measureText(state.dateText);
-    const paddingX = 18;
-    const paddingY = 9;
+    const paddingX = 16;
+    const paddingY = 8;
     const pillWidth = textMetrics.width + paddingX * 2;
     const pillHeight = dateFontSize + paddingY * 2;
     const pillX = width - logoMarginX - pillWidth;
-    const pillY = logoMarginY - 38;
+    const pillY = logoMarginY - 34;
 
     ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
     ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
@@ -318,22 +339,22 @@ export async function renderCardToCanvas(
     ctx.restore();
   }
 
-  // 7. CONTENT AREA: The 40% (or adjustable) space for headline, description, category, footer
-  const contentPaddingX = 54;
+  // 7. CONTENT AREA: Colors adapt automatically to Light or Dark Theme!
+  const contentPaddingX = 46;
   const availableContentWidth = width - contentPaddingX * 2;
   
-  let currentY = photoHeight + 32;
+  let currentY = photoHeight + 24;
 
-  // Category Tag (বুড়িচং, ব্রাহ্মণপাড়া, etc.)
+  // Category Tag
   if (state.showCategory && state.category) {
     ctx.save();
-    const categoryFontSize = Math.round(18 * (width / 1080));
+    const categoryFontSize = Math.round(16 * (width / 1080));
     ctx.font = `800 ${categoryFontSize}px ${BENGALI_FONT_STACK}`;
     
     const catText = state.category.toUpperCase();
     const catMetrics = ctx.measureText(catText);
-    const catPaddingX = 14;
-    const catPaddingY = 6;
+    const catPaddingX = 13;
+    const catPaddingY = 5;
     const catW = catMetrics.width + catPaddingX * 2;
     const catH = categoryFontSize + catPaddingY * 2;
 
@@ -350,22 +371,22 @@ export async function renderCardToCanvas(
 
     // Accent line next to badge
     ctx.fillStyle = catColor;
-    ctx.fillRect(contentPaddingX, currentY + catH + 8, catW + 24, 2);
+    ctx.fillRect(contentPaddingX, currentY + catH + 7, catW + 20, 2);
 
     ctx.restore();
-    currentY += catH + 26;
+    currentY += catH + 20;
   }
 
-  // Headline in 40% content zone (ample space for 3-4 lines if needed)
+  // Headline (White on dark theme, Deep Slate on white theme)
   if (state.headline) {
     ctx.save();
-    const headlineSize = Math.round((state.headlineFontSize || 44) * (width / 1080));
+    const headlineSize = Math.round((state.headlineFontSize || 42) * (width / 1080));
     const fontFam = state.fontFamily || 'Hind Siliguri';
     ctx.font = `800 ${headlineSize}px '${fontFam}', ${BENGALI_FONT_STACK}`;
     ctx.textBaseline = 'top';
 
     const spaceWidth = ctx.measureText(' ').width;
-    const lineHeight = headlineSize * 1.34;
+    const lineHeight = headlineSize * 1.32;
 
     const lines = wrapTextWithHighlight(
       ctx,
@@ -374,11 +395,24 @@ export async function renderCardToCanvas(
       availableContentWidth
     );
 
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
-    ctx.shadowBlur = 8;
-    ctx.shadowOffsetY = 2;
+    // Headline color adaptation:
+    const baseHeadlineColor = isLight ? '#0F172A' : '#FFFFFF';
+    
+    // Highlight color adaptation:
+    // If user has yellow on white, adapt to dark crimson red for high contrast
+    let defaultHighlight = isLight ? '#DC2626' : '#FACC15';
+    let chosenHighlight = state.highlightColor || defaultHighlight;
+    if (isLight && chosenHighlight.toUpperCase() === '#FACC15') {
+      chosenHighlight = '#DC2626';
+    }
 
-    const maxLines = state.showDescription && state.description ? 3 : 5;
+    if (!isLight) {
+      ctx.shadowColor = 'rgba(0, 0, 0, 0.7)';
+      ctx.shadowBlur = 8;
+      ctx.shadowOffsetY = 2;
+    }
+
+    const maxLines = state.showDescription && state.description ? 3 : 4;
     const linesToDraw = lines.slice(0, maxLines);
 
     for (const line of linesToDraw) {
@@ -391,10 +425,7 @@ export async function renderCardToCanvas(
       for (let i = 0; i < line.tokens.length; i++) {
         const token = line.tokens[i];
         
-        ctx.fillStyle = token.isHighlighted 
-          ? (state.highlightColor || '#FACC15') 
-          : '#FFFFFF';
-
+        ctx.fillStyle = token.isHighlighted ? chosenHighlight : baseHeadlineColor;
         ctx.fillText(token.text, cursorX, currentY);
         cursorX += token.width + spaceWidth;
       }
@@ -404,16 +435,16 @@ export async function renderCardToCanvas(
     ctx.restore();
   }
 
-  // Short Description in 40% content zone
+  // Short Description
   if (state.showDescription && state.description) {
-    currentY += 16;
+    currentY += 10;
     ctx.save();
-    const descFontSize = Math.round(23 * (width / 1080));
+    const descFontSize = Math.round(20 * (width / 1080));
     ctx.font = `400 ${descFontSize}px ${BENGALI_FONT_STACK}`;
-    ctx.fillStyle = '#CBD5E1';
+    ctx.fillStyle = isLight ? '#475569' : '#CBD5E1';
     ctx.textBaseline = 'top';
 
-    const descLineHeight = descFontSize * 1.45;
+    const descLineHeight = descFontSize * 1.42;
     const descWords = state.description.split(/\s+/);
     let descLine = '';
     let descLinesCount = 0;
@@ -427,12 +458,12 @@ export async function renderCardToCanvas(
         descLine = word;
         currentY += descLineHeight;
         descLinesCount++;
-        if (descLinesCount >= 3) break;
+        if (descLinesCount >= 2) break;
       } else {
         descLine = testLine;
       }
     }
-    if (descLine && descLinesCount < 3) {
+    if (descLine && descLinesCount < 2) {
       ctx.fillText(descLine, contentPaddingX, currentY);
     }
     ctx.restore();
@@ -441,22 +472,22 @@ export async function renderCardToCanvas(
   // 8. Footer Bar
   if (state.showFooter) {
     ctx.save();
-    const footerY = height - 54;
+    const footerY = height - 44;
 
     // Hairline divider
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.14)';
+    ctx.strokeStyle = isLight ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.12)';
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(contentPaddingX, footerY - 18);
-    ctx.lineTo(width - contentPaddingX, footerY - 18);
+    ctx.moveTo(contentPaddingX, footerY - 14);
+    ctx.lineTo(width - contentPaddingX, footerY - 14);
     ctx.stroke();
 
-    const footerFontSize = Math.round(18 * (width / 1080));
+    const footerFontSize = Math.round(16 * (width / 1080));
     ctx.textBaseline = 'middle';
 
-    // Left: "✓ বিস্তারিত ক্যাপশনে"
-    const callout = state.footerCallout || 'বিস্তারিত ক্যাপশনে';
-    const iconSize = 22;
+    // Red checkmark box + "VISIT ASP2016.ORG"
+    const callout = state.footerCallout || 'VISIT ASP2016.ORG';
+    const iconSize = 20;
     const iconX = contentPaddingX;
     const iconY = footerY - iconSize / 2;
     
@@ -465,24 +496,17 @@ export async function renderCardToCanvas(
     ctx.fill();
 
     ctx.strokeStyle = '#FFFFFF';
-    ctx.lineWidth = 2.4;
+    ctx.lineWidth = 2.2;
     ctx.beginPath();
-    ctx.moveTo(iconX + 5, iconY + 11);
-    ctx.lineTo(iconX + 9, iconY + 16);
-    ctx.lineTo(iconX + 17, iconY + 6);
+    ctx.moveTo(iconX + 4.5, iconY + 10);
+    ctx.lineTo(iconX + 8.5, iconY + 14.5);
+    ctx.lineTo(iconX + 15.5, iconY + 5.5);
     ctx.stroke();
 
     ctx.fillStyle = '#F8FAFC';
-    ctx.font = `700 ${footerFontSize}px ${BENGALI_FONT_STACK}`;
+    ctx.font = `800 ${footerFontSize}px ${LATIN_FONT_STACK}`;
     ctx.textAlign = 'left';
-    ctx.fillText(callout, iconX + iconSize + 12, footerY);
-
-    // Right: "To learn More about ASP, Visit ASP2016.ORG"
-    const siteUrl = state.footerUrl || 'To learn More about ASP, Visit ASP2016.ORG';
-    ctx.font = `700 ${footerFontSize}px ${LATIN_FONT_STACK}`;
-    ctx.fillStyle = '#EF4444';
-    ctx.textAlign = 'right';
-    ctx.fillText(siteUrl, width - contentPaddingX, footerY);
+    ctx.fillText(callout, iconX + iconSize + 10, footerY);
 
     ctx.restore();
   }

@@ -1,28 +1,28 @@
-export type AspectRatio = '3:4' | '4:3' | '1:1' | '16:9';
+export type AspectRatio = '1:1' | '3:4' | '4:3' | '16:9';
 
 export type LayoutStyle = 'standard-split' | 'daily-times' | 'cinematic-overlay' | 'breaking-banner';
 
 export type LogoSource = 'vector-brand' | 'uploaded-asset' | 'custom-upload';
 
-export type LogoVariant = 'white-red' | 'mono-white' | 'mono-black' | 'gold-edition';
+export type LogoVariant = 'white-red' | 'mono-black' | 'mono-white' | 'gold-edition';
 
 export type DateFormatMode = 'en-standard' | 'bn-standard' | 'custom';
 
 export interface CardState {
   // Image
   photoUrl: string;
-  imageZoom: number; // 0.5 to 2.5
-  imagePanX: number; // -100 to 100%
-  imagePanY: number; // -100 to 100%
-  imageBrightness: number; // 50 to 150
-  imageContrast: number; // 50 to 150
-  scrimDarkness: number; // 0 to 100%
-  contentHeightRatio: number; // default 0.40 (40% headline & description space, 60% photo)
+  imageZoom: number;
+  imagePanX: number;
+  imagePanY: number;
+  imageBrightness: number;
+  imageContrast: number;
+  scrimDarkness: number;
+  contentHeightRatio: number; // default 0.40
   
   // Content
   headline: string;
-  highlightPhrase: string; // Words to highlight in yellow/red
-  highlightColor: string; // '#FACC15' | '#EF4444' | '#38BDF8' | '#FFFFFF'
+  highlightPhrase: string;
+  highlightColor: string;
   description: string;
   showDescription: boolean;
   
@@ -33,12 +33,12 @@ export interface CardState {
   
   // Branding
   portalName: string; // 'ASP কানেক্ট'
-  organizationName: string; // "Association Students' Progress (ASP)"
+  organizationName: string; // "Association for Students' Progress - ASP"
   showPoweredBy: boolean;
   logoSource: LogoSource;
   logoVariant: LogoVariant;
   customLogoUrl: string | null;
-  logoSize: number; // 60 to 150%
+  logoSize: number;
   
   // Date
   dateText: string;
@@ -46,16 +46,15 @@ export interface CardState {
   showDate: boolean;
   
   // Footer
-  footerCallout: string; // "বিস্তারিত ক্যাপশনে"
-  footerUrl: string; // "To learn More about ASP, Visit ASP2016.ORG"
+  footerCallout: string; // default: "VISIT ASP2016.ORG"
   showFooter: boolean;
   
   // Design & Format
-  aspectRatio: AspectRatio; // '3:4' default
+  aspectRatio: AspectRatio; // default: '1:1'
   layoutStyle: LayoutStyle;
-  themeBackground: string; // '#0B132B' (reference navy), '#0F172A', '#050505', '#1E1B4B'
+  themeBackground: string; // '#0B132B'
   fontFamily: 'Hind Siliguri' | 'Noto Sans Bengali' | 'Tiro Bangla' | 'Plus Jakarta Sans' | 'Merriweather';
-  headlineFontSize: number; // 32 to 64 px
+  headlineFontSize: number;
   textAlignment: 'left' | 'center';
 }
 
