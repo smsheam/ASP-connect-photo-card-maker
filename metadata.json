@@ -1,0 +1,6 @@
+{
+  "name": "ASP কানেক্ট - News Photo Card Generator",
+  "description": "Professional Facebook photo card creator for news portal ASP কানেক্ট with instant branding, Bengali typography, and high-res export.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
