@@ -17,13 +17,15 @@ export interface CardState {
   imageBrightness: number;
   imageContrast: number;
   scrimDarkness: number;
-  contentHeightRatio: number; // default 0.40
+  contentHeightRatio: number; // default 0.44
   
   // Content
   headline: string;
+  headlineFontSize: number; // default 24, can be changed (14-26)
   highlightPhrase: string;
   highlightColor: string;
   description: string;
+  descriptionFontSize: number; // fixed 15
   showDescription: boolean;
   
   // Category
@@ -34,7 +36,7 @@ export interface CardState {
   // Branding
   portalName: string; // 'ASP কানেক্ট'
   organizationName: string; // "Association for Students' Progress - ASP"
-  showPoweredBy: boolean;
+  showPoweredBy: boolean; // false
   logoSource: LogoSource;
   logoVariant: LogoVariant;
   customLogoUrl: string | null;
@@ -43,10 +45,11 @@ export interface CardState {
   // Date
   dateText: string;
   dateMode: DateFormatMode;
+  dateFontSize: number; // fixed 14 (white text, no background)
   showDate: boolean;
   
   // Footer
-  footerCallout: string; // default: "VISIT ASP2016.ORG"
+  footerCallout: string; // "VISIT ASP2016.ORG" (size 12)
   showFooter: boolean;
   
   // Design & Format
@@ -54,7 +57,6 @@ export interface CardState {
   layoutStyle: LayoutStyle;
   themeBackground: string; // '#0B132B'
   fontFamily: 'Hind Siliguri' | 'Noto Sans Bengali' | 'Tiro Bangla' | 'Plus Jakarta Sans' | 'Merriweather';
-  headlineFontSize: number;
   textAlignment: 'left' | 'center';
 }
 

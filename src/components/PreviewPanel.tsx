@@ -3,19 +3,19 @@ import {
   Download,
   Copy,
   Check,
-  Share2,
   X,
-  ExternalLink,
   Smartphone,
 } from 'lucide-react';
 import { CardState } from '../types/card';
 import { renderCardToCanvas, getDimensionsForRatio } from '../utils/canvasRenderer';
+import { Language, TRANSLATIONS } from '../utils/translations';
 
 interface PreviewPanelProps {
   cardState: CardState;
   isExporting: boolean;
   setIsExporting: (val: boolean) => void;
   isDarkUI: boolean;
+  language: Language;
 }
 
 export const PreviewPanel: React.FC<PreviewPanelProps> = ({
@@ -23,11 +23,13 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
   isExporting,
   setIsExporting,
   isDarkUI,
+  language,
 }) => {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [copied, setCopied] = useState(false);
   const [exportFormat, setExportFormat] = useState<'png' | 'jpeg'>('png');
   const [mobileModalUrl, setMobileModalUrl] = useState<string | null>(null);
+  const t = TRANSLATIONS[language];
 
   useEffect(() => {
     let isCancelled = false;
@@ -78,13 +80,13 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
           try {
             await navigator.share({
               files: [file],
-              title: 'ASP কানেক্ট ফটো কার্ড',
+              title: t.portalName,
               text: cardState.headline,
             });
             setIsExporting(false);
             return;
           } catch (shareErr) {
-            // User may have cancelled or share sheet closed, proceed to fallback
+            // User cancelled or sheet closed, proceed to fallback
             console.log('Share dismissed or failed, using download fallback:', shareErr);
           }
         }
@@ -157,7 +159,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
       {/* Top minimal bar */}
       <div className={`flex items-center justify-between text-xs rounded-xl px-4 py-2.5 border ${barBg}`}>
         <div className="flex items-center gap-2">
-          <span className="font-bold">লাইভ ফটো কার্ড</span>
+          <span className="font-bold">{t.previewTitle}</span>
           <span className="text-slate-400 font-mono text-[11px]">
             {width} × {height} ({cardState.aspectRatio})
           </span>
@@ -166,11 +168,12 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
         <select
           value={exportFormat}
           onChange={(e) => setExportFormat(e.target.value as any)}
+          aria-label="Export Format"
           className={`border rounded-md px-2 py-1 text-[11px] font-medium focus:outline-none ${
             isDarkUI ? 'bg-slate-950 border-slate-800 text-slate-300' : 'bg-white border-slate-300 text-slate-700'
           }`}
         >
-          <option value="png">PNG (এইচডি)</option>
+          <option value="png">PNG (HD)</option>
           <option value="jpeg">JPEG</option>
         </select>
       </div>
@@ -207,12 +210,12 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
           {copied ? (
             <>
               <Check className="w-4 h-4 text-emerald-500" />
-              <span className="text-emerald-600 dark:text-emerald-400">কপি সম্পন্ন!</span>
+              <span className="text-emerald-600 dark:text-emerald-400">{t.copiedSuccess}</span>
             </>
           ) : (
             <>
               <Copy className="w-4 h-4 text-slate-500" />
-              <span>ক্লিপবোর্ডে কপি</span>
+              <span>{t.copyClipboard}</span>
             </>
           )}
         </button>
@@ -223,14 +226,8 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
           className="flex items-center justify-center gap-2 px-4 py-3 bg-rose-600 hover:bg-rose-500 active:scale-[0.98] rounded-xl text-xs font-bold text-white shadow-sm transition-all disabled:opacity-60"
         >
           <Download className="w-4 h-4" />
-          <span>{isExporting ? 'তৈরি হচ্ছে...' : 'কার্ড ডাউনলোড করুন'}</span>
+          <span>{isExporting ? t.creating : t.downloadButton}</span>
         </button>
-      </div>
-
-      {/* Mobile Tip */}
-      <div className="text-[11px] text-center text-slate-400 bg-slate-900/60 border border-slate-800/80 rounded-lg py-2 px-3 flex items-center justify-center gap-1.5">
-        <Smartphone className="w-3.5 h-3.5 text-rose-400 shrink-0" />
-        <span>মোবাইলে ডাউনলোড না হলে "কার্ড ডাউনলোড করুন" চাপলে সরাসরি ফটো সেভ করার উইন্ডো আসবে</span>
       </div>
 
       {/* Mobile Save Modal (Guaranteed 100% working on all phones) */}
@@ -242,11 +239,12 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
               <div className="flex items-center gap-2">
                 <Smartphone className="w-4 h-4 text-rose-500" />
                 <h3 className="text-xs sm:text-sm font-bold text-white">
-                  মোবাইলে সেভ করুন (Save to Phone)
+                  {t.saveToPhone}
                 </h3>
               </div>
               <button
                 onClick={() => setMobileModalUrl(null)}
+                aria-label="Close save dialog"
                 className="p-1 text-slate-400 hover:text-white rounded-lg bg-slate-800"
               >
                 <X className="w-4 h-4" />
@@ -255,10 +253,7 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
 
             <div className="bg-rose-950/40 border border-rose-500/30 p-2.5 rounded-xl text-left text-xs text-rose-200">
               <p className="font-bold flex items-center gap-1">
-                👉 ছবিটিতে ১-২ সেকেন্ড চেপে ধরে রাখুন (Long Press):
-              </p>
-              <p className="text-[11px] text-slate-300 mt-1">
-                তারপর <strong>"Save Image"</strong> বা <strong>"Download Image"</strong> নির্বাচন করলে সরাসরি আপনার ফোনের গ্যালারি/ফটোসে সেভ হয়ে যাবে।
+                {t.longPressTip}
               </p>
             </div>
 
@@ -279,14 +274,14 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
                 className="flex items-center justify-center gap-1.5 py-2.5 px-3 bg-slate-800 hover:bg-slate-700 text-white rounded-xl text-xs font-bold text-center"
               >
                 <Download className="w-3.5 h-3.5" />
-                <span>পুনরায় ডাউনলোড</span>
+                <span>{t.downloadAgain}</span>
               </a>
 
               <button
                 onClick={() => setMobileModalUrl(null)}
                 className="py-2.5 px-3 bg-rose-600 hover:bg-rose-500 text-white rounded-xl text-xs font-bold text-center"
               >
-                সম্পন্ন
+                {t.done}
               </button>
             </div>
 

@@ -159,7 +159,12 @@ function wrapTextWithHighlight(
 }
 
 /**
- * Main render function supporting 1:1 default, white theme, and dark theme
+ * Main render function with updated exact font sizes:
+ * - Headline default 24 size (12 words)
+ * - Description fixed 15 size (70 words)
+ * - Date white text, no background, size 14
+ * - Category size 14
+ * - Visit asp2016.org size 12
  */
 export async function renderCardToCanvas(
   canvas: HTMLCanvasElement,
@@ -172,6 +177,8 @@ export async function renderCardToCanvas(
   const ctx = canvas.getContext('2d');
   if (!ctx) return;
 
+  const scale = width / 540;
+
   const isLight = isLightBackground(state.themeBackground);
   const bgColor = state.themeBackground || (isLight ? '#FFFFFF' : '#0B132B');
 
@@ -179,8 +186,8 @@ export async function renderCardToCanvas(
   ctx.fillStyle = bgColor;
   ctx.fillRect(0, 0, width, height);
 
-  // Content height allocation: default 40% (0.40) or adjustable
-  const contentRatio = state.contentHeightRatio ?? 0.40;
+  // Content height allocation: default 44% to give generous breathing room for 70 words
+  const contentRatio = state.contentHeightRatio ?? 0.44;
   const contentHeight = Math.round(height * contentRatio);
   const photoHeight = height - contentHeight;
 
@@ -252,22 +259,21 @@ export async function renderCardToCanvas(
     }
   }
 
-  // 3. Top dark scrim for Logo & Date Stamp contrast
+  // 3. Top dark scrim for Logo & Date contrast
   ctx.save();
-  const topGrad = ctx.createLinearGradient(0, 0, 0, 150);
+  const topGrad = ctx.createLinearGradient(0, 0, 0, 140);
   topGrad.addColorStop(0, 'rgba(0, 0, 0, 0.8)');
-  topGrad.addColorStop(0.65, 'rgba(0, 0, 0, 0.35)');
+  topGrad.addColorStop(0.7, 'rgba(0, 0, 0, 0.3)');
   topGrad.addColorStop(1, 'rgba(0, 0, 0, 0)');
   ctx.fillStyle = topGrad;
-  ctx.fillRect(0, 0, width, 150);
+  ctx.fillRect(0, 0, width, 140);
   ctx.restore();
 
   // 4. Logo in Top-Left Corner
   const logoScale = (state.logoSize / 100) * (width / 1080);
   const logoMarginX = 46;
-  const logoMarginY = 66;
+  const logoMarginY = 64;
 
-  // In top photo area with dark top scrim, white-red logo looks crisp
   const effectiveLogoVariant = state.logoVariant || 'white-red';
 
   if (state.logoSource === 'uploaded-asset' || state.logoSource === 'custom-upload') {
@@ -283,10 +289,10 @@ export async function renderCardToCanvas(
         ctx.shadowBlur = 10;
         
         const lAspect = logoImg.naturalWidth / logoImg.naturalHeight;
-        const targetH = 46 * logoScale;
+        const targetH = 44 * logoScale;
         const targetW = targetH * lAspect;
 
-        ctx.drawImage(logoImg, logoMarginX, logoMarginY - 34, targetW, targetH);
+        ctx.drawImage(logoImg, logoMarginX, logoMarginY - 32, targetW, targetH);
         ctx.restore();
       } catch {
         drawCanvasLogo(ctx, logoMarginX, logoMarginY, logoScale, effectiveLogoVariant);
@@ -298,63 +304,37 @@ export async function renderCardToCanvas(
     drawCanvasLogo(ctx, logoMarginX, logoMarginY, logoScale, effectiveLogoVariant);
   }
 
-  // 5. Powered by Association for Students' Progress - ASP (Requirement 1)
-  if (state.showPoweredBy) {
-    ctx.save();
-    const poweredFontSize = Math.round(12 * (width / 1080));
-    ctx.font = `600 ${poweredFontSize}px ${LATIN_FONT_STACK}`;
-    ctx.fillStyle = 'rgba(255, 255, 255, 0.85)';
-    ctx.shadowColor = 'rgba(0, 0, 0, 0.9)';
-    ctx.shadowBlur = 6;
-    ctx.fillText("Powered by Association for Students' Progress - ASP", logoMarginX, logoMarginY + 24);
-    ctx.restore();
-  }
-
-  // 6. Date Stamp in Top-Right Corner
+  // 5. Date Stamp in Top-Right Corner (Requirement 3: date is in white text, no background, size 14)
   if (state.showDate && state.dateText) {
     ctx.save();
-    const dateFontSize = Math.round(17 * (width / 1080));
+    const dateFontSize = Math.round(14 * scale); // Exact Size 14
     ctx.font = `700 ${dateFontSize}px ${BENGALI_FONT_STACK}`;
-    
-    const textMetrics = ctx.measureText(state.dateText);
-    const paddingX = 16;
-    const paddingY = 8;
-    const pillWidth = textMetrics.width + paddingX * 2;
-    const pillHeight = dateFontSize + paddingY * 2;
-    const pillX = width - logoMarginX - pillWidth;
-    const pillY = logoMarginY - 34;
-
-    ctx.fillStyle = 'rgba(15, 23, 42, 0.75)';
-    ctx.strokeStyle = 'rgba(255, 255, 255, 0.2)';
-    ctx.lineWidth = 1.2;
-    
-    drawRoundedRect(ctx, pillX, pillY, pillWidth, pillHeight, 6);
-    ctx.fill();
-    ctx.stroke();
-
-    ctx.fillStyle = '#FFFFFF';
-    ctx.textAlign = 'left';
+    ctx.fillStyle = '#FFFFFF'; // Pure White
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.95)';
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetY = 1;
+    ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
-    ctx.fillText(state.dateText, pillX + paddingX, pillY + pillHeight / 2);
+    ctx.fillText(state.dateText, width - logoMarginX, logoMarginY - Math.round(10 * scale));
     ctx.restore();
   }
 
-  // 7. CONTENT AREA: Colors adapt automatically to Light or Dark Theme!
+  // 6. CONTENT AREA
   const contentPaddingX = 46;
   const availableContentWidth = width - contentPaddingX * 2;
   
-  let currentY = photoHeight + 24;
+  let currentY = photoHeight + Math.round(18 * scale);
 
-  // Category Tag
+  // Requirement 4: Category size 14
   if (state.showCategory && state.category) {
     ctx.save();
-    const categoryFontSize = Math.round(16 * (width / 1080));
+    const categoryFontSize = Math.round(14 * scale); // Exact Size 14
     ctx.font = `800 ${categoryFontSize}px ${BENGALI_FONT_STACK}`;
     
     const catText = state.category.toUpperCase();
     const catMetrics = ctx.measureText(catText);
-    const catPaddingX = 13;
-    const catPaddingY = 5;
+    const catPaddingX = Math.round(12 * scale);
+    const catPaddingY = Math.round(5 * scale);
     const catW = catMetrics.width + catPaddingX * 2;
     const catH = categoryFontSize + catPaddingY * 2;
 
@@ -369,24 +349,25 @@ export async function renderCardToCanvas(
     ctx.textBaseline = 'middle';
     ctx.fillText(catText, contentPaddingX + catPaddingX, currentY + catH / 2);
 
-    // Accent line next to badge
+    // Subtle accent line
     ctx.fillStyle = catColor;
-    ctx.fillRect(contentPaddingX, currentY + catH + 7, catW + 20, 2);
+    ctx.fillRect(contentPaddingX, currentY + catH + Math.round(6 * scale), catW + Math.round(16 * scale), Math.round(2.5 * scale));
 
     ctx.restore();
-    currentY += catH + 20;
+    currentY += catH + Math.round(16 * scale);
   }
 
-  // Headline (White on dark theme, Deep Slate on white theme)
+  // Requirement 1: Headline in 12 words (default 24 size, can be changed 14-26)
   if (state.headline) {
     ctx.save();
-    const headlineSize = Math.round((state.headlineFontSize || 42) * (width / 1080));
+    const headlineFontSize = state.headlineFontSize || 24; // Default 24 size
+    const headlineSize = Math.round(headlineFontSize * scale);
     const fontFam = state.fontFamily || 'Hind Siliguri';
     ctx.font = `800 ${headlineSize}px '${fontFam}', ${BENGALI_FONT_STACK}`;
     ctx.textBaseline = 'top';
 
     const spaceWidth = ctx.measureText(' ').width;
-    const lineHeight = headlineSize * 1.32;
+    const lineHeight = Math.round(headlineSize * 1.30);
 
     const lines = wrapTextWithHighlight(
       ctx,
@@ -395,11 +376,8 @@ export async function renderCardToCanvas(
       availableContentWidth
     );
 
-    // Headline color adaptation:
     const baseHeadlineColor = isLight ? '#0F172A' : '#FFFFFF';
     
-    // Highlight color adaptation:
-    // If user has yellow on white, adapt to dark crimson red for high contrast
     let defaultHighlight = isLight ? '#DC2626' : '#FACC15';
     let chosenHighlight = state.highlightColor || defaultHighlight;
     if (isLight && chosenHighlight.toUpperCase() === '#FACC15') {
@@ -412,10 +390,7 @@ export async function renderCardToCanvas(
       ctx.shadowOffsetY = 2;
     }
 
-    const maxLines = state.showDescription && state.description ? 3 : 4;
-    const linesToDraw = lines.slice(0, maxLines);
-
-    for (const line of linesToDraw) {
+    for (const line of lines) {
       let cursorX = contentPaddingX;
 
       if (state.textAlignment === 'center') {
@@ -424,7 +399,6 @@ export async function renderCardToCanvas(
 
       for (let i = 0; i < line.tokens.length; i++) {
         const token = line.tokens[i];
-        
         ctx.fillStyle = token.isHighlighted ? chosenHighlight : baseHeadlineColor;
         ctx.fillText(token.text, cursorX, currentY);
         cursorX += token.width + spaceWidth;
@@ -435,78 +409,84 @@ export async function renderCardToCanvas(
     ctx.restore();
   }
 
-  // Short Description
+  // Requirement 2: Description in 70 words (fixed 15 size)
   if (state.showDescription && state.description) {
-    currentY += 10;
+    currentY += Math.round(8 * scale);
     ctx.save();
-    const descFontSize = Math.round(20 * (width / 1080));
+    const descFontSize = Math.round(15 * scale); // Fixed 15 size
     ctx.font = `400 ${descFontSize}px ${BENGALI_FONT_STACK}`;
-    ctx.fillStyle = isLight ? '#475569' : '#CBD5E1';
+    ctx.fillStyle = isLight ? '#334155' : '#CBD5E1';
     ctx.textBaseline = 'top';
 
-    const descLineHeight = descFontSize * 1.42;
+    const descLineHeight = Math.round(descFontSize * 1.38);
     const descWords = state.description.split(/\s+/);
     let descLine = '';
-    let descLinesCount = 0;
+
+    // Calculate maximum available Y before footer
+    const footerY = height - Math.round(38 * (height / 1080));
+    const maxDescY = footerY - Math.round(20 * scale);
 
     for (const word of descWords) {
       const testLine = descLine ? `${descLine} ${word}` : word;
       const testWidth = ctx.measureText(testLine).width;
 
       if (testWidth > availableContentWidth && descLine) {
-        ctx.fillText(descLine, contentPaddingX, currentY);
-        descLine = word;
-        currentY += descLineHeight;
-        descLinesCount++;
-        if (descLinesCount >= 2) break;
+        if (currentY + descLineHeight <= maxDescY) {
+          ctx.fillText(descLine, contentPaddingX, currentY);
+          currentY += descLineHeight;
+          descLine = word;
+        } else {
+          ctx.fillText(descLine + '...', contentPaddingX, currentY);
+          descLine = '';
+          break;
+        }
       } else {
         descLine = testLine;
       }
     }
-    if (descLine && descLinesCount < 2) {
+    if (descLine && currentY <= maxDescY) {
       ctx.fillText(descLine, contentPaddingX, currentY);
     }
     ctx.restore();
   }
 
-  // 8. Footer Bar
+  // Requirement 5: Visit asp2016.org size 12
   if (state.showFooter) {
     ctx.save();
-    const footerY = height - 44;
+    const footerY = height - Math.round(38 * (height / 1080));
 
     // Hairline divider
     ctx.strokeStyle = isLight ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.12)';
     ctx.lineWidth = 1;
     ctx.beginPath();
-    ctx.moveTo(contentPaddingX, footerY - 14);
-    ctx.lineTo(width - contentPaddingX, footerY - 14);
+    ctx.moveTo(contentPaddingX, footerY - 12);
+    ctx.lineTo(width - contentPaddingX, footerY - 12);
     ctx.stroke();
 
-    const footerFontSize = Math.round(16 * (width / 1080));
+    const footerFontSize = Math.round(12 * scale); // Exact Size 12!
     ctx.textBaseline = 'middle';
 
-    // Red checkmark box + "VISIT ASP2016.ORG"
     const callout = state.footerCallout || 'VISIT ASP2016.ORG';
-    const iconSize = 20;
+    const iconSize = Math.round(16 * (width / 1080));
     const iconX = contentPaddingX;
     const iconY = footerY - iconSize / 2;
     
     ctx.fillStyle = '#EF4444';
-    drawRoundedRect(ctx, iconX, iconY, iconSize, iconSize, 4);
+    drawRoundedRect(ctx, iconX, iconY, iconSize, iconSize, 3);
     ctx.fill();
 
     ctx.strokeStyle = '#FFFFFF';
-    ctx.lineWidth = 2.2;
+    ctx.lineWidth = 2.0;
     ctx.beginPath();
-    ctx.moveTo(iconX + 4.5, iconY + 10);
-    ctx.lineTo(iconX + 8.5, iconY + 14.5);
-    ctx.lineTo(iconX + 15.5, iconY + 5.5);
+    ctx.moveTo(iconX + 3.5, iconY + 8);
+    ctx.lineTo(iconX + 6.5, iconY + 11.5);
+    ctx.lineTo(iconX + 12.5, iconY + 4.5);
     ctx.stroke();
 
-    ctx.fillStyle = '#F8FAFC';
+    ctx.fillStyle = isLight ? '#0F172A' : '#F8FAFC';
     ctx.font = `800 ${footerFontSize}px ${LATIN_FONT_STACK}`;
     ctx.textAlign = 'left';
-    ctx.fillText(callout, iconX + iconSize + 10, footerY);
+    ctx.fillText(callout, iconX + iconSize + 9, footerY);
 
     ctx.restore();
   }
