@@ -36,3 +36,44 @@ export function getBengaliDate(date: Date = new Date()): string {
   const yearBn = toBengaliNumber(date.getFullYear());
   return `${dayBn} ${monthBn}, ${yearBn}`;
 }
+
+/**
+ * Returns YYYY-MM-DD formatted date in Asia/Dhaka timezone
+ */
+export function getDhakaDateKey(date: Date = new Date()): string {
+  const dtf = new Intl.DateTimeFormat('en-CA', {
+    timeZone: 'Asia/Dhaka',
+    year: 'numeric',
+    month: '2-digit',
+    day: '2-digit',
+  });
+  return dtf.format(date); // YYYY-MM-DD
+}
+
+/**
+ * Returns Bengali formatted date for today in Asia/Dhaka timezone
+ */
+export function getDhakaDateBengali(date: Date = new Date()): string {
+  const dtfParts = new Intl.DateTimeFormat('en-US', {
+    timeZone: 'Asia/Dhaka',
+    day: 'numeric',
+    month: 'numeric',
+    year: 'numeric',
+  }).formatToParts(date);
+
+  let day = 1;
+  let month = 1;
+  let year = 2026;
+
+  for (const part of dtfParts) {
+    if (part.type === 'day') day = parseInt(part.value, 10);
+    if (part.type === 'month') month = parseInt(part.value, 10);
+    if (part.type === 'year') year = parseInt(part.value, 10);
+  }
+
+  const dayBn = toBengaliNumber(day);
+  const monthBn = BN_MONTHS[month - 1] || BN_MONTHS[0];
+  const yearBn = toBengaliNumber(year);
+  return `${dayBn} ${monthBn}, ${yearBn}`;
+}
+

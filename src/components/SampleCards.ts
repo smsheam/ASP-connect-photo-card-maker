@@ -22,11 +22,11 @@ export const DEFAULT_CARD_STATE: CardState = {
   scrimDarkness: 0,
   contentHeightRatio: 0.44, // 44% content space gives balanced fit for 12-word headline & 70-word description
 
-  headline: DEFAULT_HEADLINE_BN,
+  headline: '',
   headlineFontSize: 24, // Requirement: default 24 size, can be changed 14-26
-  highlightPhrase: 'বুড়িচং ও ব্রাহ্মণপাড়ায়',
+  highlightPhrase: '',
   highlightColor: '#FACC15', // News Yellow
-  description: DEFAULT_DESCRIPTION_BN,
+  description: '',
   descriptionFontSize: 15, // Requirement: fixed 15 size
   showDescription: true,
 

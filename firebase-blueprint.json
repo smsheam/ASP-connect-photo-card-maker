@@ -1,0 +1,47 @@
+{
+  "entities": {
+    "dailyNews": {
+      "title": "Daily News",
+      "description": "Shared daily verified news cards generated once per Bangladesh calendar day",
+      "type": "object",
+      "properties": {
+        "id": { "type": "string" },
+        "dateKey": { "type": "string", "description": "Bangladesh calendar date in YYYY-MM-DD" },
+        "category": { "type": "string", "enum": ["বাংলাদেশ", "আন্তর্জাতিক", "বিজ্ঞান ও প্রযুক্তি", "কুমিল্লা ও স্থানীয়"] },
+        "headline": { "type": "string" },
+        "supportingDescription": { "type": "string" },
+        "fullReport": { "type": "string" },
+        "publisher": { "type": "string" },
+        "sourceUrl": { "type": "string" },
+        "publicationDate": { "type": "string" },
+        "eventDate": { "type": "string" },
+        "imageUrl": { "type": "string" },
+        "imageAttribution": { "type": "string" },
+        "verificationStatus": { "type": "string", "enum": ["verified", "unverified"] },
+        "generationTimestamp": { "type": "number" },
+        "lastUpdatedTimestamp": { "type": "number" }
+      },
+      "required": ["id", "dateKey", "category", "headline", "supportingDescription", "publisher", "publicationDate", "verificationStatus"]
+    },
+    "newsMeta": {
+      "title": "News Metadata & Locks",
+      "description": "Locks and generation status for categories and days",
+      "type": "object",
+      "properties": {
+        "dateKey": { "type": "string" },
+        "lastGeneratedAt": { "type": "number" },
+        "categoryLocks": { "type": "object" }
+      }
+    }
+  },
+  "firestore": {
+    "/dailyNews/{newsId}": {
+      "schema": "dailyNews",
+      "description": "Collection of daily news items. Read by all users, written by backend or client updates."
+    },
+    "/newsMeta/{metaId}": {
+      "schema": "newsMeta",
+      "description": "System locks and metadata for news sync."
+    }
+  }
+}

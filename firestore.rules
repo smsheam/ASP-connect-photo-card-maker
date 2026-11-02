@@ -1,0 +1,16 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Shared daily news collection
+    match /dailyNews/{newsId} {
+      allow read: if true;
+      allow write: if true;
+    }
+    
+    // Metadata and refresh locking
+    match /newsMeta/{metaId} {
+      allow read: if true;
+      allow write: if true;
+    }
+  }
+}

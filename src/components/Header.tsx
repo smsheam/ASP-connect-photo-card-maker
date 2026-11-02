@@ -72,7 +72,7 @@ export const Header: React.FC<HeaderProps> = ({
 
         {/* Zone 3: Actions (Language, Theme, Reset, Download) */}
         <div className="flex items-center gap-1.5 sm:gap-2.5 shrink-0">
-          
+
           {/* Dual-Language Toggle (Bangla ↔ English) */}
           <button
             onClick={onToggleLanguage}
