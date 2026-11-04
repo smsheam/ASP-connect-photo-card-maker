@@ -8,8 +8,17 @@ export type LogoVariant = 'white-red' | 'mono-black' | 'mono-white' | 'gold-edit
 
 export type DateFormatMode = 'en-standard' | 'bn-standard' | 'custom';
 
+export type CardType = 'photo' | 'text';
+
+export type TextAlignment = 'left' | 'center' | 'right';
+
+export type TextVerticalPosition = 'top' | 'center' | 'bottom';
+
 export interface CardState {
-  // Image
+  // Mode: Photo Card vs Text Card (No Photo)
+  cardType?: CardType; // default 'photo'
+
+  // Image (For Photo Card)
   photoUrl: string;
   imageZoom: number;
   imagePanX: number;
@@ -19,16 +28,25 @@ export interface CardState {
   scrimDarkness: number;
   contentHeightRatio: number; // default 0.44
   
-  // Content
+  // Content (Shared & Text Card)
   headline: string;
-  headlineFontSize: number; // default 24, can be changed (14-26)
+  headlineFontSize: number; // default 24, can be changed (14-26 for photo card)
   highlightPhrase: string;
   highlightColor: string;
   description: string;
   descriptionFontSize: number; // fixed 15
   showDescription: boolean;
   
-  // Category
+  // Text Card Specific Settings
+  textColor?: string; // default: '#FFFFFF'
+  textCardFontSize?: number; // default 36, range: 20 - 72
+  textPositionV?: TextVerticalPosition; // 'top' | 'center' | 'bottom'
+  textVerticalOffset?: number; // -100 to 100
+  showGridLines?: boolean; // background grid lines on/off
+  gridOpacity?: number; // 0.05 to 0.40
+  gridSpacing?: number; // grid mesh spacing in px
+  
+  // Category (For Photo Card; omitted in Text Card)
   category: string;
   categoryColor: string;
   showCategory: boolean;
@@ -57,7 +75,7 @@ export interface CardState {
   layoutStyle: LayoutStyle;
   themeBackground: string; // '#0B132B'
   fontFamily: 'Hind Siliguri' | 'Noto Sans Bengali' | 'Tiro Bangla' | 'Plus Jakarta Sans' | 'Merriweather';
-  textAlignment: 'left' | 'center';
+  textAlignment: TextAlignment;
 }
 
 export interface PresetCard {

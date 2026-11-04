@@ -64,6 +64,34 @@ export interface TranslationStrings {
     [key: string]: string;
   };
   footerRights: string;
+  // Text Card additions
+  cardTypeLabel: string;
+  cardTypePhoto: string;
+  cardTypeText: string;
+  tabTextMain: string;
+  tabTextPosition: string;
+  tabTextBackground: string;
+  textMainLabel: string;
+  textMainPlaceholder: string;
+  textSubLabel: string;
+  textSubPlaceholder: string;
+  textSizeLabel: string;
+  textColorLabel: string;
+  fontFamilyLabel: string;
+  textAlignLabel: string;
+  alignLeft: string;
+  alignCenter: string;
+  alignRight: string;
+  textPositionVLabel: string;
+  posTop: string;
+  posCenter: string;
+  posBottom: string;
+  verticalOffsetLabel: string;
+  bgColorLabel: string;
+  gridLinesLabel: string;
+  gridLinesOn: string;
+  gridLinesOff: string;
+  gridOpacityLabel: string;
 }
 
 export const TRANSLATIONS: Record<Language, TranslationStrings> = {
@@ -139,6 +167,34 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
       'বাংলাদেশ': 'সারাদেশে নতুন শিক্ষাবর্ষে ডিজিটাল শিক্ষা ও মেধা বিকাশ প্রকল্পের দেশব্যাপী সম্প্রসারণ ঘোষণা',
     },
     footerRights: 'ASP কানেক্ট © ২০২৬ · সর্বস্বত্ব সংরক্ষিত',
+    // Text Card translations
+    cardTypeLabel: 'কার্ডের ধরন',
+    cardTypePhoto: 'ফটো কার্ড (Photo Card)',
+    cardTypeText: 'টেক্সট কার্ড (No Photo)',
+    tabTextMain: 'টেক্সট ও ফন্ট',
+    tabTextPosition: 'পজিশন ও সাইজ',
+    tabTextBackground: 'ব্যাকগ্রাউন্ড ও গ্রিড',
+    textMainLabel: 'মূল বক্তব্য / শিরোনাম / উক্তি',
+    textMainPlaceholder: 'কার্ডে প্রদর্শন করার জন্য মূল বক্তব্য, উক্তি বা বার্তা লিখুন...',
+    textSubLabel: 'সহায়ক তথ্য / লেখক / উৎস',
+    textSubPlaceholder: 'প্রয়োজনে সহায়ক বক্তব্য বা উৎস লিখুন...',
+    textSizeLabel: 'টেক্সটের ফন্ট সাইজ',
+    textColorLabel: 'টেক্সটের রঙ',
+    fontFamilyLabel: 'ফন্ট স্টাইল',
+    textAlignLabel: 'টেক্সট অ্যালাইনমেন্ট',
+    alignLeft: 'বাম (Left)',
+    alignCenter: 'মাঝামাঝি (Center)',
+    alignRight: 'ডান (Right)',
+    textPositionVLabel: 'ভার্টিক্যাল পজিশন',
+    posTop: 'উপরে (Top)',
+    posCenter: 'মাঝামাঝি (Center)',
+    posBottom: 'নিচে (Bottom)',
+    verticalOffsetLabel: 'পজিশন ফাইন-টিউন (Nudge)',
+    bgColorLabel: 'ব্যাকগ্রাউন্ড কালার',
+    gridLinesLabel: 'ব্যাকগ্রাউন্ড গ্রিড লাইন (Grid Lines)',
+    gridLinesOn: 'গ্রিড চালু (ON)',
+    gridLinesOff: 'গ্রিড বন্ধ (OFF)',
+    gridOpacityLabel: 'গ্রিডের ঘনত্ব',
   },
   en: {
     appTitle: 'ASP Connect Photo Card Studio',
@@ -212,5 +268,33 @@ export const TRANSLATIONS: Record<Language, TranslationStrings> = {
       'বাংলাদেশ': 'Digital education and talent development initiative expands nationwide in new academic year',
     },
     footerRights: 'ASP Connect © 2026 · All Rights Reserved',
+    // Text Card translations
+    cardTypeLabel: 'Card Type',
+    cardTypePhoto: 'Photo Card',
+    cardTypeText: 'Text Card (No Photo)',
+    tabTextMain: 'Text & Typography',
+    tabTextPosition: 'Position & Sizing',
+    tabTextBackground: 'Background & Grid',
+    textMainLabel: 'Main Headline / Quote / Message',
+    textMainPlaceholder: 'Enter your main statement, headline or quote...',
+    textSubLabel: 'Subtext / Author / Source',
+    textSubPlaceholder: 'Optional supporting description or author credit...',
+    textSizeLabel: 'Text Font Size',
+    textColorLabel: 'Text Color',
+    fontFamilyLabel: 'Font Style',
+    textAlignLabel: 'Text Alignment',
+    alignLeft: 'Left',
+    alignCenter: 'Center',
+    alignRight: 'Right',
+    textPositionVLabel: 'Vertical Position',
+    posTop: 'Top',
+    posCenter: 'Center',
+    posBottom: 'Bottom',
+    verticalOffsetLabel: 'Fine-tune Position (Y)',
+    bgColorLabel: 'Background Color',
+    gridLinesLabel: 'Background Grid Lines',
+    gridLinesOn: 'Grid ON',
+    gridLinesOff: 'Grid OFF',
+    gridOpacityLabel: 'Grid Opacity',
   },
 };

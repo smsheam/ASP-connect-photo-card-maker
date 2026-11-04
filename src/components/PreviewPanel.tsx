@@ -160,7 +160,14 @@ export const PreviewPanel: React.FC<PreviewPanelProps> = ({
       <div className={`flex items-center justify-between text-xs rounded-xl px-4 py-2.5 border ${barBg}`}>
         <div className="flex items-center gap-2">
           <span className="font-bold">{t.previewTitle}</span>
-          <span className="text-slate-400 font-mono text-[11px]">
+          <span className={`text-[10px] px-2 py-0.5 rounded-full font-bold border ${
+            cardState.cardType === 'text'
+              ? 'text-amber-400 bg-amber-500/10 border-amber-500/30'
+              : 'text-rose-400 bg-rose-500/10 border-rose-500/30'
+          }`}>
+            {cardState.cardType === 'text' ? 'টেক্সট কার্ড' : 'ফটো কার্ড'}
+          </span>
+          <span className="text-slate-400 font-mono text-[11px] hidden sm:inline">
             {width} × {height} ({cardState.aspectRatio})
           </span>
         </div>

@@ -55,6 +55,16 @@ export const DEFAULT_CARD_STATE: CardState = {
   themeBackground: '#0B132B',
   fontFamily: 'Hind Siliguri',
   textAlignment: 'left',
+
+  // Card Mode & Text Card Settings
+  cardType: 'photo',
+  textColor: '#FFFFFF',
+  textCardFontSize: 36,
+  textPositionV: 'center',
+  textVerticalOffset: 0,
+  showGridLines: true,
+  gridOpacity: 0.12,
+  gridSpacing: 48,
 };
 
 export const SAMPLE_PRESETS: PresetCard[] = [
@@ -136,6 +146,30 @@ export const SAMPLE_PRESETS: PresetCard[] = [
       aspectRatio: '1:1',
       contentHeightRatio: 0.44,
       showPoweredBy: false,
+      cardType: 'photo',
+    },
+  },
+  {
+    id: 'text-quote-asp',
+    title: 'টেক্সট কার্ড (No Photo)',
+    category: 'উক্তি / বার্তা',
+    cardState: {
+      cardType: 'text',
+      themeBackground: '#0B132B',
+      headline: 'জ্ঞান অর্জন ও মানবিক মূল্যবোধই একজন শিক্ষার্থীকে প্রকৃত মানুষ হিসেবে গড়ে তোলে',
+      highlightPhrase: 'মানবিক মূল্যবোধই',
+      highlightColor: '#FACC15',
+      description: 'অ্যাসোসিয়েশন ফর স্টুডেন্টস প্রগ্রেস (এএসপি) · অনুপ্রেরণামূলক বার্তা',
+      showDescription: true,
+      textColor: '#FFFFFF',
+      textCardFontSize: 38,
+      textAlignment: 'center',
+      textPositionV: 'center',
+      showGridLines: true,
+      gridOpacity: 0.12,
+      aspectRatio: '1:1',
+      showFooter: true,
+      footerCallout: 'VISIT ASP2016.ORG',
     },
   },
 ];

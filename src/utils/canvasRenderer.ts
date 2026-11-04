@@ -158,6 +158,323 @@ function wrapTextWithHighlight(
   return lines;
 }
 
+function wrapMultilineTextWithHighlight(
+  ctx: CanvasRenderingContext2D,
+  text: string,
+  highlightPhrase: string,
+  maxWidth: number
+): WrappedLine[] {
+  const paragraphs = text.split('\n');
+  const allLines: WrappedLine[] = [];
+
+  for (let i = 0; i < paragraphs.length; i++) {
+    const p = paragraphs[i].trim();
+    if (!p) {
+      if (allLines.length > 0 && i < paragraphs.length - 1) {
+        allLines.push({ tokens: [], totalWidth: 0 });
+      }
+      continue;
+    }
+    const wrapped = wrapTextWithHighlight(ctx, p, highlightPhrase, maxWidth);
+    allLines.push(...wrapped);
+  }
+  return allLines;
+}
+
+/**
+ * Dedicated renderer for No Photo Style (Text Card)
+ * - No photo
+ * - No category
+ * - Text covers whole card
+ * - Customizable font, color, size, horizontal & vertical position
+ * - Background color change
+ * - Background grid line on/off
+ */
+async function renderTextCardToCanvas(
+  ctx: CanvasRenderingContext2D,
+  state: CardState,
+  width: number,
+  height: number,
+  scale: number,
+  isLight: boolean,
+  bgColor: string
+): Promise<void> {
+  // 1. Background grid line on/off
+  const showGrid = state.showGridLines !== false;
+  if (showGrid) {
+    ctx.save();
+    const baseSpacing = state.gridSpacing || 48;
+    const spacing = Math.round(baseSpacing * (width / 1080) * 1.5);
+    const opacity = state.gridOpacity !== undefined ? state.gridOpacity : 0.12;
+
+    ctx.strokeStyle = isLight 
+      ? `rgba(15, 23, 42, ${opacity})` 
+      : `rgba(255, 255, 255, ${opacity})`;
+    ctx.lineWidth = Math.max(1, Math.round(1 * (width / 1080)));
+
+    // Vertical grid lines
+    for (let x = spacing; x < width; x += spacing) {
+      ctx.beginPath();
+      ctx.moveTo(x, 0);
+      ctx.lineTo(x, height);
+      ctx.stroke();
+    }
+
+    // Horizontal grid lines
+    for (let y = spacing; y < height; y += spacing) {
+      ctx.beginPath();
+      ctx.moveTo(0, y);
+      ctx.lineTo(width, y);
+      ctx.stroke();
+    }
+
+    // Modern architectural accent: small intersection dots
+    const dotSize = Math.max(2, Math.round(2 * (width / 1080)));
+    const dotStep = spacing * 2;
+    ctx.fillStyle = isLight 
+      ? `rgba(15, 23, 42, ${opacity * 1.6})` 
+      : `rgba(255, 255, 255, ${opacity * 1.6})`;
+    for (let x = dotStep; x < width; x += dotStep) {
+      for (let y = dotStep; y < height; y += dotStep) {
+        ctx.fillRect(x - dotSize / 2, y - dotSize / 2, dotSize, dotSize);
+      }
+    }
+    ctx.restore();
+  }
+
+  // 2. Top Header: Branding & Date
+  const logoScale = (state.logoSize / 100) * (width / 1080);
+  const marginX = Math.round(52 * (width / 1080));
+  const headerY = Math.round(68 * (height / 1080));
+
+  const effectiveLogoVariant = state.logoVariant || (isLight ? 'mono-black' : 'white-red');
+
+  // Draw Logo
+  if (state.logoSource === 'uploaded-asset' || state.logoSource === 'custom-upload') {
+    const logoSrc = state.logoSource === 'uploaded-asset'
+      ? '/assets/aistudio/image_15d93372.png'
+      : state.customLogoUrl;
+
+    if (logoSrc) {
+      try {
+        const logoImg = await loadImage(logoSrc);
+        ctx.save();
+        const lAspect = logoImg.naturalWidth / logoImg.naturalHeight;
+        const targetH = 44 * logoScale;
+        const targetW = targetH * lAspect;
+        ctx.drawImage(logoImg, marginX, headerY - 30 * logoScale, targetW, targetH);
+        ctx.restore();
+      } catch {
+        drawCanvasLogo(ctx, marginX, headerY, logoScale, effectiveLogoVariant);
+      }
+    } else {
+      drawCanvasLogo(ctx, marginX, headerY, logoScale, effectiveLogoVariant);
+    }
+  } else {
+    drawCanvasLogo(ctx, marginX, headerY, logoScale, effectiveLogoVariant);
+  }
+
+  // Corner Date Stamp (Requirement: White text, no background, size 14)
+  if (state.showDate && state.dateText) {
+    ctx.save();
+    const dateFontSize = Math.round(14 * scale);
+    ctx.font = `700 ${dateFontSize}px ${BENGALI_FONT_STACK}`;
+    ctx.fillStyle = isLight ? '#0F172A' : '#FFFFFF';
+    ctx.textAlign = 'right';
+    ctx.textBaseline = 'middle';
+    ctx.fillText(state.dateText, width - marginX, headerY - Math.round(10 * scale));
+    ctx.restore();
+  }
+
+  // 3. Footer Branding: VISIT ASP2016.ORG (Size 12)
+  const footerY = height - Math.round(38 * (height / 1080));
+  if (state.showFooter) {
+    ctx.save();
+    // Hairline divider
+    ctx.strokeStyle = isLight ? 'rgba(0, 0, 0, 0.08)' : 'rgba(255, 255, 255, 0.12)';
+    ctx.lineWidth = 1;
+    ctx.beginPath();
+    ctx.moveTo(marginX, footerY - 12);
+    ctx.lineTo(width - marginX, footerY - 12);
+    ctx.stroke();
+
+    const footerFontSize = Math.round(12 * scale);
+    ctx.textBaseline = 'middle';
+
+    const callout = state.footerCallout || 'VISIT ASP2016.ORG';
+    const iconSize = Math.round(16 * (width / 1080));
+    const iconX = marginX;
+    const iconY = footerY - iconSize / 2;
+    
+    ctx.fillStyle = '#EF4444';
+    drawRoundedRect(ctx, iconX, iconY, iconSize, iconSize, 3);
+    ctx.fill();
+
+    ctx.strokeStyle = '#FFFFFF';
+    ctx.lineWidth = 2.0;
+    ctx.beginPath();
+    ctx.moveTo(iconX + 3.5, iconY + 8);
+    ctx.lineTo(iconX + 6.5, iconY + 11.5);
+    ctx.lineTo(iconX + 12.5, iconY + 4.5);
+    ctx.stroke();
+
+    ctx.fillStyle = isLight ? '#0F172A' : '#F8FAFC';
+    ctx.font = `800 ${footerFontSize}px ${LATIN_FONT_STACK}`;
+    ctx.textAlign = 'left';
+    ctx.fillText(callout, iconX + iconSize + 9, footerY);
+    ctx.restore();
+  }
+
+  // 4. Text Area: covers whole card (NO CATEGORY in text card style!)
+  const contentPaddingX = Math.round(52 * (width / 1080));
+  const availableContentWidth = width - contentPaddingX * 2;
+  const topSafeY = headerY + Math.round(55 * (height / 1080));
+  const bottomSafeY = footerY - Math.round(35 * (height / 1080));
+  const availableContentHeight = bottomSafeY - topSafeY;
+
+  // Typography settings
+  const fontFam = state.fontFamily || 'Hind Siliguri';
+  const headlineBaseSize = state.textCardFontSize || 36;
+  const headlineFontSize = Math.round(headlineBaseSize * scale);
+  const baseTextColor = state.textColor || (isLight ? '#0F172A' : '#FFFFFF');
+
+  let defaultHighlight = isLight ? '#DC2626' : '#FACC15';
+  let chosenHighlight = state.highlightColor || defaultHighlight;
+  if (isLight && chosenHighlight.toUpperCase() === '#FACC15') {
+    chosenHighlight = '#DC2626';
+  }
+
+  ctx.save();
+  ctx.font = `800 ${headlineFontSize}px '${fontFam}', ${BENGALI_FONT_STACK}`;
+  ctx.textBaseline = 'top';
+
+  const spaceWidth = ctx.measureText(' ').width;
+  const headlineLineHeight = Math.round(headlineFontSize * 1.35);
+
+  const mainLines = state.headline
+    ? wrapMultilineTextWithHighlight(ctx, state.headline, state.highlightPhrase || '', availableContentWidth)
+    : [];
+
+  let mainBlockHeight = 0;
+  for (const line of mainLines) {
+    if (line.tokens.length === 0) {
+      mainBlockHeight += Math.round(headlineLineHeight * 0.6);
+    } else {
+      mainBlockHeight += headlineLineHeight;
+    }
+  }
+
+  // Subtext / Description
+  const showSub = state.showDescription && Boolean(state.description);
+  const subFontSize = Math.round((state.descriptionFontSize || 16) * scale);
+  const subLineHeight = Math.round(subFontSize * 1.45);
+  let subLines: string[] = [];
+
+  if (showSub) {
+    ctx.font = `400 ${subFontSize}px ${BENGALI_FONT_STACK}`;
+    const words = state.description.split(/\s+/);
+    let curLine = '';
+    for (const w of words) {
+      const test = curLine ? `${curLine} ${w}` : w;
+      if (ctx.measureText(test).width > availableContentWidth && curLine) {
+        subLines.push(curLine);
+        curLine = w;
+      } else {
+        curLine = test;
+      }
+    }
+    if (curLine) subLines.push(curLine);
+  }
+
+  const subBlockHeight = subLines.length * subLineHeight;
+  const gapBetween = (mainLines.length > 0 && subLines.length > 0) ? Math.round(24 * (height / 1080)) : 0;
+  const totalContentHeight = mainBlockHeight + gapBetween + subBlockHeight;
+
+  // Vertical position ('top' | 'center' | 'bottom')
+  const vPos = state.textPositionV || 'center';
+  let startY = topSafeY;
+  if (vPos === 'center') {
+    startY = topSafeY + Math.max(0, (availableContentHeight - totalContentHeight) / 2);
+  } else if (vPos === 'bottom') {
+    startY = bottomSafeY - totalContentHeight - Math.round(20 * (height / 1080));
+  } else {
+    // top
+    startY = topSafeY + Math.round(20 * (height / 1080));
+  }
+
+  // User vertical offset adjustment
+  if (state.textVerticalOffset) {
+    startY += Math.round(state.textVerticalOffset * scale);
+  }
+  startY = Math.max(topSafeY, startY);
+
+  // If no headline entered yet, show placeholder prompt
+  if (mainLines.length === 0 && !showSub) {
+    ctx.font = `600 ${Math.round(24 * scale)}px '${fontFam}', ${BENGALI_FONT_STACK}`;
+    ctx.fillStyle = isLight ? '#94A3B8' : '#64748B';
+    ctx.textAlign = 'center';
+    ctx.textBaseline = 'middle';
+    ctx.fillText('টেক্সট বা উক্তি লিখুন (Type headline / quote)', width / 2, height / 2);
+    ctx.restore();
+    return;
+  }
+
+  let currentY = startY;
+
+  // Render Main Text
+  ctx.font = `800 ${headlineFontSize}px '${fontFam}', ${BENGALI_FONT_STACK}`;
+  if (!isLight) {
+    ctx.shadowColor = 'rgba(0, 0, 0, 0.65)';
+    ctx.shadowBlur = 8;
+    ctx.shadowOffsetY = 2;
+  }
+
+  for (const line of mainLines) {
+    if (line.tokens.length === 0) {
+      currentY += Math.round(headlineLineHeight * 0.6);
+      continue;
+    }
+
+    let cursorX = contentPaddingX;
+    if (state.textAlignment === 'center') {
+      cursorX = (width - line.totalWidth) / 2;
+    } else if (state.textAlignment === 'right') {
+      cursorX = width - contentPaddingX - line.totalWidth;
+    }
+
+    for (let i = 0; i < line.tokens.length; i++) {
+      const token = line.tokens[i];
+      ctx.fillStyle = token.isHighlighted ? chosenHighlight : baseTextColor;
+      ctx.fillText(token.text, cursorX, currentY);
+      cursorX += token.width + spaceWidth;
+    }
+
+    currentY += headlineLineHeight;
+  }
+
+  // Render Subtext
+  if (showSub && subLines.length > 0) {
+    currentY += gapBetween;
+    ctx.font = `400 ${subFontSize}px ${BENGALI_FONT_STACK}`;
+    ctx.fillStyle = isLight ? '#475569' : '#94A3B8';
+    ctx.shadowColor = 'transparent';
+
+    for (const sLine of subLines) {
+      let cursorX = contentPaddingX;
+      const sLineWidth = ctx.measureText(sLine).width;
+      if (state.textAlignment === 'center') {
+        cursorX = (width - sLineWidth) / 2;
+      } else if (state.textAlignment === 'right') {
+        cursorX = width - contentPaddingX - sLineWidth;
+      }
+      ctx.fillText(sLine, cursorX, currentY);
+      currentY += subLineHeight;
+    }
+  }
+
+  ctx.restore();
+}
+
 /**
  * Main render function with updated exact font sizes:
  * - Headline default 24 size (12 words)
@@ -185,6 +502,12 @@ export async function renderCardToCanvas(
   // 1. Fill background
   ctx.fillStyle = bgColor;
   ctx.fillRect(0, 0, width, height);
+
+  // If Text Card mode (No Photo Style), render via dedicated Text Card renderer
+  if (state.cardType === 'text') {
+    await renderTextCardToCanvas(ctx, state, width, height, scale, isLight, bgColor);
+    return;
+  }
 
   // Content height allocation: default 44% to give generous breathing room for 70 words
   const contentRatio = state.contentHeightRatio ?? 0.44;
