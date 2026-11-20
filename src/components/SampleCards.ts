@@ -40,7 +40,10 @@ export const DEFAULT_CARD_STATE: CardState = {
   logoSource: 'vector-brand',
   logoVariant: 'white-red',
   customLogoUrl: null,
-  logoSize: 100,
+  logoSize: 400,
+  showLogoWatermark: false,
+  logoWatermarkOpacity: 0.08,
+  logoWatermarkScale: 1.0,
 
   dateText: getBengaliDate(),
   dateMode: 'bn-standard',

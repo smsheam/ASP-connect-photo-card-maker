@@ -690,6 +690,109 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
                 )}
               </div>
 
+              {/* Logo Size (200-400%) & Large Background Watermark */}
+              <div className={`p-3.5 rounded-xl border space-y-3 ${subBg}`}>
+                <div className="flex items-center justify-between">
+                  <span className={`text-xs font-semibold ${textTitle}`}>
+                    {language === 'bn' ? 'লোগো সাইজ (২০০% - ৪০০%)' : 'Logo Size (200% - 400%)'}
+                  </span>
+                  <span className="font-mono text-rose-500 font-bold text-xs">
+                    {cardState.logoSize || 200}%
+                  </span>
+                </div>
+                <div className="flex gap-1.5">
+                  {[200, 250, 300, 350, 400].map((sz) => (
+                    <button
+                      key={sz}
+                      type="button"
+                      onClick={() => onChange({ logoSize: sz })}
+                      className={`flex-1 py-1 rounded-md text-[11px] font-bold border cursor-pointer ${
+                        cardState.logoSize === sz
+                          ? 'bg-rose-600 text-white border-rose-600'
+                          : isDarkUI
+                          ? 'bg-slate-900 border-slate-800 text-slate-400'
+                          : 'bg-white border-slate-300 text-slate-600'
+                      }`}
+                    >
+                      {sz}%
+                    </button>
+                  ))}
+                </div>
+                <input
+                  type="range"
+                  min="100"
+                  max="400"
+                  step="10"
+                  value={cardState.logoSize || 200}
+                  onChange={(e) => onChange({ logoSize: Number(e.target.value) })}
+                  className="w-full accent-rose-500 h-1.5 rounded-lg cursor-pointer"
+                />
+
+                <div className="pt-2 border-t border-slate-500/15 flex items-center justify-between">
+                  <span className={`text-xs font-semibold ${textTitle}`}>
+                    {language === 'bn'
+                      ? 'ব্যাকগ্রাউন্ডে বড় লোগো ওয়াটারমার্ক'
+                      : 'Large Background Logo Watermark'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => onChange({ showLogoWatermark: !cardState.showLogoWatermark })}
+                    className={`px-3 py-1 rounded-lg text-xs font-bold border cursor-pointer ${
+                      cardState.showLogoWatermark
+                        ? 'bg-emerald-600 text-white border-emerald-500'
+                        : isDarkUI
+                        ? 'bg-slate-900 border-slate-700 text-slate-400'
+                        : 'bg-white border-slate-300 text-slate-600'
+                    }`}
+                  >
+                    {cardState.showLogoWatermark ? 'ON' : 'OFF'}
+                  </button>
+                </div>
+
+                {cardState.showLogoWatermark && (
+                  <div className="grid grid-cols-2 gap-3 pt-1">
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[11px]">
+                        <span className={textMuted}>Opacity</span>
+                        <span className="font-mono text-slate-400">
+                          {Math.round((cardState.logoWatermarkOpacity ?? 0.08) * 100)}%
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.03"
+                        max="0.25"
+                        step="0.01"
+                        value={cardState.logoWatermarkOpacity ?? 0.08}
+                        onChange={(e) =>
+                          onChange({ logoWatermarkOpacity: Number(e.target.value) })
+                        }
+                        className="w-full accent-rose-500 h-1.5 rounded-lg cursor-pointer"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[11px]">
+                        <span className={textMuted}>Size</span>
+                        <span className="font-mono text-slate-400">
+                          {Math.round((cardState.logoWatermarkScale ?? 1.0) * 100)}%
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.5"
+                        max="1.8"
+                        step="0.05"
+                        value={cardState.logoWatermarkScale ?? 1.0}
+                        onChange={(e) =>
+                          onChange({ logoWatermarkScale: Number(e.target.value) })
+                        }
+                        className="w-full accent-rose-500 h-1.5 rounded-lg cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                )}
+              </div>
+
             </div>
           )}
         </div>
@@ -1031,6 +1134,139 @@ export const EditorPanel: React.FC<EditorPanelProps> = ({
                   placeholder="VISIT ASP2016.ORG"
                   className={`w-full border rounded-lg px-3 py-1.5 text-xs font-mono font-bold text-rose-500 ${inputBg}`}
                 />
+              </div>
+
+              {/* Logo Style, Size (200-400%) & Large Background Watermark */}
+              <div className={`p-3.5 rounded-xl border space-y-3 ${subBg}`}>
+                <div className="flex items-center justify-between">
+                  <span className={`text-xs font-semibold ${textTitle}`}>
+                    {language === 'bn' ? 'ASP লোগো ও সাইজ (২০০%-৪০০%)' : 'ASP Logo & Size (200%-400%)'}
+                  </span>
+                  <span className="font-mono text-rose-500 font-bold text-xs">
+                    {cardState.logoSize || 200}%
+                  </span>
+                </div>
+
+                <div className="grid grid-cols-2 gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => onChange({ logoSource: 'vector-brand' })}
+                    className={`py-1.5 px-2.5 rounded-lg text-[11px] font-bold border cursor-pointer ${
+                      cardState.logoSource === 'vector-brand'
+                        ? 'bg-rose-600 text-white border-rose-600'
+                        : isDarkUI
+                        ? 'bg-slate-900 border-slate-700 text-slate-300'
+                        : 'bg-white border-slate-300 text-slate-700'
+                    }`}
+                  >
+                    ASP কানেক্ট (Default)
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onChange({ logoSource: 'uploaded-asset' })}
+                    className={`py-1.5 px-2.5 rounded-lg text-[11px] font-bold border cursor-pointer ${
+                      cardState.logoSource === 'uploaded-asset'
+                        ? 'bg-rose-600 text-white border-rose-600'
+                        : isDarkUI
+                        ? 'bg-slate-900 border-slate-700 text-slate-300'
+                        : 'bg-white border-slate-300 text-slate-700'
+                    }`}
+                  >
+                    Official ASP Emblem
+                  </button>
+                </div>
+
+                <div className="flex gap-1.5">
+                  {[200, 250, 300, 350, 400].map((sz) => (
+                    <button
+                      key={sz}
+                      type="button"
+                      onClick={() => onChange({ logoSize: sz })}
+                      className={`flex-1 py-1 rounded-md text-[11px] font-bold border cursor-pointer ${
+                        cardState.logoSize === sz
+                          ? 'bg-rose-600 text-white border-rose-600'
+                          : isDarkUI
+                          ? 'bg-slate-900 border-slate-800 text-slate-400'
+                          : 'bg-white border-slate-300 text-slate-600'
+                      }`}
+                    >
+                      {sz}%
+                    </button>
+                  ))}
+                </div>
+                <input
+                  type="range"
+                  min="100"
+                  max="400"
+                  step="10"
+                  value={cardState.logoSize || 200}
+                  onChange={(e) => onChange({ logoSize: Number(e.target.value) })}
+                  className="w-full accent-rose-500 h-1.5 rounded-lg cursor-pointer"
+                />
+
+                <div className="pt-2 border-t border-slate-500/15 flex items-center justify-between">
+                  <span className={`text-xs font-semibold ${textTitle}`}>
+                    {language === 'bn'
+                      ? 'ব্যাকগ্রাউন্ডে বড় লোগো ওয়াটারমার্ক'
+                      : 'Large Background Logo Watermark'}
+                  </span>
+                  <button
+                    type="button"
+                    onClick={() => onChange({ showLogoWatermark: !cardState.showLogoWatermark })}
+                    className={`px-3 py-1 rounded-lg text-xs font-bold border cursor-pointer ${
+                      cardState.showLogoWatermark
+                        ? 'bg-emerald-600 text-white border-emerald-500'
+                        : isDarkUI
+                        ? 'bg-slate-900 border-slate-700 text-slate-400'
+                        : 'bg-white border-slate-300 text-slate-600'
+                    }`}
+                  >
+                    {cardState.showLogoWatermark ? 'ON' : 'OFF'}
+                  </button>
+                </div>
+
+                {cardState.showLogoWatermark && (
+                  <div className="grid grid-cols-2 gap-3 pt-1">
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[11px]">
+                        <span className={textMuted}>Opacity</span>
+                        <span className="font-mono text-slate-400">
+                          {Math.round((cardState.logoWatermarkOpacity ?? 0.08) * 100)}%
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.03"
+                        max="0.25"
+                        step="0.01"
+                        value={cardState.logoWatermarkOpacity ?? 0.08}
+                        onChange={(e) =>
+                          onChange({ logoWatermarkOpacity: Number(e.target.value) })
+                        }
+                        className="w-full accent-rose-500 h-1.5 rounded-lg cursor-pointer"
+                      />
+                    </div>
+                    <div className="space-y-1">
+                      <div className="flex justify-between text-[11px]">
+                        <span className={textMuted}>Size</span>
+                        <span className="font-mono text-slate-400">
+                          {Math.round((cardState.logoWatermarkScale ?? 1.0) * 100)}%
+                        </span>
+                      </div>
+                      <input
+                        type="range"
+                        min="0.5"
+                        max="1.8"
+                        step="0.05"
+                        value={cardState.logoWatermarkScale ?? 1.0}
+                        onChange={(e) =>
+                          onChange({ logoWatermarkScale: Number(e.target.value) })
+                        }
+                        className="w-full accent-rose-500 h-1.5 rounded-lg cursor-pointer"
+                      />
+                    </div>
+                  </div>
+                )}
               </div>
 
             </div>

@@ -59,6 +59,9 @@ export interface CardState {
   logoVariant: LogoVariant;
   customLogoUrl: string | null;
   logoSize: number;
+  showLogoWatermark?: boolean;
+  logoWatermarkOpacity?: number;
+  logoWatermarkScale?: number;
   
   // Date
   dateText: string;

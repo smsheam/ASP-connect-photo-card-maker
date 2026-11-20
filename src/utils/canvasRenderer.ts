@@ -1,5 +1,7 @@
 import { CardState, AspectRatio } from '../types/card';
 import { drawCanvasLogo } from '../components/LogoVector';
+import { OFFICIAL_ASP_LOGO_URL } from '../types/studio';
+import { drawStudioLogoWatermark } from './canvasShared';
 
 export interface Dimension {
   width: number;
@@ -242,17 +244,38 @@ async function renderTextCardToCanvas(
     ctx.restore();
   }
 
+  // 1b. Large Background Logo Watermark (if enabled)
+  if (state.showLogoWatermark) {
+    const wmSrc =
+      state.logoSource === 'custom-upload' && state.customLogoUrl
+        ? state.customLogoUrl
+        : OFFICIAL_ASP_LOGO_URL;
+    await drawStudioLogoWatermark(
+      ctx,
+      width,
+      height,
+      wmSrc,
+      state.logoWatermarkOpacity ?? 0.08,
+      state.logoWatermarkScale ?? 1.0,
+      0.52
+    );
+  }
+
   // 2. Top Header: Branding & Date
   const logoScale = (state.logoSize / 100) * (width / 1080);
+  const vectorScale = Math.min(logoScale, 2.0 * (width / 1080));
   const marginX = Math.round(52 * (width / 1080));
-  const headerY = Math.round(68 * (height / 1080));
+  const headerY = Math.max(
+    Math.round(68 * (height / 1080)),
+    Math.round(28 * (width / 1080) + 38 * vectorScale)
+  );
 
   const effectiveLogoVariant = state.logoVariant || (isLight ? 'mono-black' : 'white-red');
 
   // Draw Logo
   if (state.logoSource === 'uploaded-asset' || state.logoSource === 'custom-upload') {
     const logoSrc = state.logoSource === 'uploaded-asset'
-      ? '/assets/aistudio/image_15d93372.png'
+      ? OFFICIAL_ASP_LOGO_URL
       : state.customLogoUrl;
 
     if (logoSrc) {
@@ -262,27 +285,27 @@ async function renderTextCardToCanvas(
         const lAspect = logoImg.naturalWidth / logoImg.naturalHeight;
         const targetH = 44 * logoScale;
         const targetW = targetH * lAspect;
-        ctx.drawImage(logoImg, marginX, headerY - 30 * logoScale, targetW, targetH);
+        ctx.drawImage(logoImg, marginX, Math.round(26 * (height / 1080)), targetW, targetH);
         ctx.restore();
       } catch {
-        drawCanvasLogo(ctx, marginX, headerY, logoScale, effectiveLogoVariant);
+        drawCanvasLogo(ctx, marginX, headerY, vectorScale, effectiveLogoVariant);
       }
     } else {
-      drawCanvasLogo(ctx, marginX, headerY, logoScale, effectiveLogoVariant);
+      drawCanvasLogo(ctx, marginX, headerY, vectorScale, effectiveLogoVariant);
     }
   } else {
-    drawCanvasLogo(ctx, marginX, headerY, logoScale, effectiveLogoVariant);
+    drawCanvasLogo(ctx, marginX, headerY, vectorScale, effectiveLogoVariant);
   }
 
-  // Corner Date Stamp (Requirement: White text, no background, size 14)
+  // Corner Date Stamp (Larger crisp date)
   if (state.showDate && state.dateText) {
     ctx.save();
-    const dateFontSize = Math.round(14 * scale);
+    const dateFontSize = Math.round(17 * scale);
     ctx.font = `700 ${dateFontSize}px ${BENGALI_FONT_STACK}`;
     ctx.fillStyle = isLight ? '#0F172A' : '#FFFFFF';
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
-    ctx.fillText(state.dateText, width - marginX, headerY - Math.round(10 * scale));
+    ctx.fillText(state.dateText, width - marginX, Math.round(54 * (height / 1080)));
     ctx.restore();
   }
 
@@ -592,16 +615,34 @@ export async function renderCardToCanvas(
   ctx.fillRect(0, 0, width, 140);
   ctx.restore();
 
+  // 3b. Large Background Logo Watermark behind content/header (if enabled)
+  if (state.showLogoWatermark) {
+    const wmSrc =
+      state.logoSource === 'custom-upload' && state.customLogoUrl
+        ? state.customLogoUrl
+        : OFFICIAL_ASP_LOGO_URL;
+    await drawStudioLogoWatermark(
+      ctx,
+      width,
+      height,
+      wmSrc,
+      state.logoWatermarkOpacity ?? 0.08,
+      state.logoWatermarkScale ?? 1.0,
+      0.72
+    );
+  }
+
   // 4. Logo in Top-Left Corner
   const logoScale = (state.logoSize / 100) * (width / 1080);
+  const vectorScale = Math.min(logoScale, 2.0 * (width / 1080));
   const logoMarginX = 46;
-  const logoMarginY = 64;
+  const logoMarginY = Math.max(64, Math.round(28 + 38 * vectorScale));
 
   const effectiveLogoVariant = state.logoVariant || 'white-red';
 
   if (state.logoSource === 'uploaded-asset' || state.logoSource === 'custom-upload') {
     const logoSrc = state.logoSource === 'uploaded-asset' 
-      ? '/assets/aistudio/image_15d93372.png' 
+      ? OFFICIAL_ASP_LOGO_URL
       : state.customLogoUrl;
 
     if (logoSrc) {
@@ -615,22 +656,22 @@ export async function renderCardToCanvas(
         const targetH = 44 * logoScale;
         const targetW = targetH * lAspect;
 
-        ctx.drawImage(logoImg, logoMarginX, logoMarginY - 32, targetW, targetH);
+        ctx.drawImage(logoImg, logoMarginX, 28, targetW, targetH);
         ctx.restore();
       } catch {
-        drawCanvasLogo(ctx, logoMarginX, logoMarginY, logoScale, effectiveLogoVariant);
+        drawCanvasLogo(ctx, logoMarginX, logoMarginY, vectorScale, effectiveLogoVariant);
       }
     } else {
-      drawCanvasLogo(ctx, logoMarginX, logoMarginY, logoScale, effectiveLogoVariant);
+      drawCanvasLogo(ctx, logoMarginX, logoMarginY, vectorScale, effectiveLogoVariant);
     }
   } else {
-    drawCanvasLogo(ctx, logoMarginX, logoMarginY, logoScale, effectiveLogoVariant);
+    drawCanvasLogo(ctx, logoMarginX, logoMarginY, vectorScale, effectiveLogoVariant);
   }
 
-  // 5. Date Stamp in Top-Right Corner (Requirement 3: date is in white text, no background, size 14)
+  // 5. Date Stamp in Top-Right Corner (Increased readable size)
   if (state.showDate && state.dateText) {
     ctx.save();
-    const dateFontSize = Math.round(14 * scale); // Exact Size 14
+    const dateFontSize = Math.round(17 * scale);
     ctx.font = `700 ${dateFontSize}px ${BENGALI_FONT_STACK}`;
     ctx.fillStyle = '#FFFFFF'; // Pure White
     ctx.shadowColor = 'rgba(0, 0, 0, 0.95)';
@@ -638,7 +679,7 @@ export async function renderCardToCanvas(
     ctx.shadowOffsetY = 1;
     ctx.textAlign = 'right';
     ctx.textBaseline = 'middle';
-    ctx.fillText(state.dateText, width - logoMarginX, logoMarginY - Math.round(10 * scale));
+    ctx.fillText(state.dateText, width - logoMarginX, 54);
     ctx.restore();
   }
 
